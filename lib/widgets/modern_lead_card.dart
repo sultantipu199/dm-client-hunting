@@ -96,42 +96,45 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
     }
   }
 
-  /// Trigger 1-Tap WhatsApp Outreach with medium impact haptic and instant state-shift
+  /// Trigger 1-Tap WhatsApp Outreach with medium impact haptic and instant synchronous state-demotion
   Future<void> _triggerWhatsAppOutreach() async {
     HapticFeedback.mediumImpact();
 
-    // 1. Launch WhatsApp
-    await DispatchService.launchWhatsAppOutreach(lead: widget.lead, preferArabic: true);
-
-    // 2. Mark contacted in Hive and slide card out
+    // 1. Synchronously trigger state-demotion in Riverpod & Hive, starting slide-out animation
     _handleStateShift();
+
+    // 2. Launch WhatsApp with RFC-compliant encoding (strictly zero '+' signs)
+    await DispatchService.launchWhatsAppOutreach(lead: widget.lead, preferArabic: true);
   }
 
-  /// Trigger 1-Tap Direct Email Pitch with medium impact haptic and instant state-shift
+  /// Trigger 1-Tap Direct Email Pitch with medium impact haptic and instant synchronous state-demotion
   Future<void> _triggerEmailPitch() async {
     HapticFeedback.mediumImpact();
 
-    // 1. Launch native email
-    await DispatchService.launchEmailPitch(lead: widget.lead);
-
-    // 2. Mark contacted in Hive and slide card out
+    // 1. Synchronously trigger state-demotion in Riverpod & Hive, starting slide-out animation
     _handleStateShift();
+
+    // 2. Launch native email with RFC-compliant encoding (strictly zero '+' signs)
+    await DispatchService.launchEmailPitch(lead: widget.lead);
   }
 
   void _handleStateShift() {
-    setState(() {
-      _isSlidingOut = true;
-    });
-
-    // Mark contacted in Riverpod + Hive
+    // Mark contacted in Riverpod + Hive immediately
     ref.read(leadsProvider.notifier).markContacted(widget.lead.id);
 
-    // Provide smooth slide-out animation delay
-    Future.delayed(const Duration(milliseconds: 320), () {
-      if (mounted) {
-        widget.onDismissed?.call();
-      }
-    });
+    // Only slide out if currently in 'new' state (demoting New -> Contacted)
+    if (widget.lead.status == 'new') {
+      setState(() {
+        _isSlidingOut = true;
+      });
+
+      // Provide smooth slide-out animation delay
+      Future.delayed(const Duration(milliseconds: 320), () {
+        if (mounted) {
+          widget.onDismissed?.call();
+        }
+      });
+    }
   }
 
   /// Handles 1-tap Send Apology & Archive for Wrong Contacts

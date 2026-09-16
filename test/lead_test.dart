@@ -28,13 +28,25 @@ void main() {
       expect(fromJson.agreesToRemoteWork, true);
     });
 
+    test('Universal RFC-compliant encoding strictly eliminates + signs', () {
+      final encodedSpace = DispatchService.encodeParam('Hello World');
+      expect(encodedSpace, 'Hello%20World');
+      expect(encodedSpace.contains('+'), false);
+
+      const multiline = 'Line 1\nLine 2 with spaces & bullets: • Item';
+      final encodedMultiline = DispatchService.encodeParam(multiline);
+      expect(encodedMultiline.contains('+'), false);
+      expect(encodedMultiline.contains('%20'), true);
+      expect(encodedMultiline.contains('%0A'), true);
+    });
+
     test('DispatchService sanitizes phone numbers for WhatsApp API', () {
       expect(DispatchService.sanitizePhoneNumber('+966 50 123 4567'), '966501234567');
       expect(DispatchService.sanitizePhoneNumber('+971-50-987-6543'), '971509876543');
       expect(DispatchService.sanitizePhoneNumber('00966501234567'), '00966501234567');
     });
 
-    test('WhatsApp copy generation includes marketing gap and remote model', () {
+    test('Humanized conversational copy generation includes gap and remote sprint', () {
       final lead = Lead(
         id: 'test_02',
         companyName: 'Dubai Luxury Realty',
@@ -54,8 +66,14 @@ void main() {
 
       expect(arabicMsg.contains('Dubai Luxury Realty'), true);
       expect(arabicMsg.contains('⚡ Low Google Visibility / No Search Ads'), true);
-      expect(englishMsg.contains('Cross-Border'), false); // Contains remote
+      expect(arabicMsg.contains('مساك الله بالخير'), true);
       expect(englishMsg.contains('Low Google Visibility'), true);
+      expect(englishMsg.contains('growth sprints'), true);
+
+      // Verify email body has humanized bullet points
+      final emailBody = DispatchService.generateEmailBody(lead: lead);
+      expect(emailBody.contains('• Bottleneck:'), true);
+      expect(emailBody.contains('I hope this email finds you well'), false); // Zero robotic fluff
     });
 
     test('GeminiService local heuristic accurately flags wrong contacts and triggers blacklist', () async {

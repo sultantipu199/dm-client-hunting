@@ -1,51 +1,74 @@
 import 'package:url_launcher/url_launcher.dart';
 import '../models/lead.dart';
 
-/// Handles 1-tap outbound dispatching across WhatsApp, Email, and Website previews.
+/// Universal RFC-compliant dispatch service for WhatsApp, Email, and Web preview.
+/// Strictly eliminates unwanted '+' signs, preserving clean paragraphs, bullet points,
+/// and spaces across all WhatsApp clients and native mail applications.
 class DispatchService {
-  /// Launches WhatsApp with high-converting, tailored Arabic or English growth copy.
-  static Future<bool> launchWhatsAppOutreach({
-    required Lead lead,
-    bool preferArabic = true,
-  }) async {
-    // 1. Sanitize phone number (strip whitespace, dashes, plus sign for WhatsApp API)
-    final cleanPhone = sanitizePhoneNumber(lead.phone);
-    final message = generateWhatsAppCopy(lead: lead, preferArabic: preferArabic);
-
-    final encodedMessage = Uri.encodeComponent(message);
-    final whatsappUrl = Uri.parse('https://wa.me/$cleanPhone?text=$encodedMessage');
-
-    try {
-      return await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      // Fallback intent if universal link fails
-      final fallbackUri = Uri.parse('whatsapp://send?phone=$cleanPhone&text=$encodedMessage');
-      return await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
-    }
+  /// Safe Percent-Encoding preserving spaces as %20 and newlines as %0A (Strictly Zero '+' signs)
+  static String encodeParam(String text) {
+    return Uri.encodeComponent(text).replaceAll('+', '%20');
   }
 
-  /// Launches Native Mail Client via mailto: with pre-filled subject and executive proposal body.
-  static Future<bool> launchEmailPitch({required Lead lead}) async {
-    final subject = generateEmailSubject(lead: lead);
-    final body = generateEmailBody(lead: lead);
-
-    final mailtoUri = Uri(
-      scheme: 'mailto',
-      path: lead.email,
-      queryParameters: {
-        'subject': subject,
-        'body': body,
-      },
-    );
+  /// 1. WhatsApp Dispatcher (RFC-compliant encoding, Zero '+' signs)
+  static Future<bool> launchWhatsApp({
+    required String phone,
+    required String message,
+  }) async {
+    final cleanPhone = sanitizePhoneNumber(phone);
+    final encoded = encodeParam(message);
+    final uri = Uri.parse('https://wa.me/$cleanPhone?text=$encoded');
 
     try {
-      return await launchUrl(mailtoUri, mode: LaunchMode.externalApplication);
+      if (await canLaunchUrl(uri)) {
+        return await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+      final fallbackUri = Uri.parse('whatsapp://send?phone=$cleanPhone&text=$encoded');
+      return await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
     } catch (_) {
       return false;
     }
   }
 
-  /// Opens Website preview in external browser or in-app view
+  /// Helper for direct Lead WhatsApp dispatch
+  static Future<bool> launchWhatsAppOutreach({
+    required Lead lead,
+    bool preferArabic = true,
+  }) async {
+    final message = generateWhatsAppCopy(lead: lead, preferArabic: preferArabic);
+    return await launchWhatsApp(phone: lead.phone, message: message);
+  }
+
+  /// 2. Email Dispatcher (RFC-compliant encoding, Zero '+' signs)
+  static Future<bool> launchEmail({
+    required String email,
+    required String subject,
+    required String body,
+  }) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: email,
+      query: 'subject=${encodeParam(subject)}&body=${encodeParam(body)}',
+    );
+
+    try {
+      if (await canLaunchUrl(uri)) {
+        return await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Helper for direct Lead Email pitch
+  static Future<bool> launchEmailPitch({required Lead lead}) async {
+    final subject = generateEmailSubject(lead: lead);
+    final body = generateEmailBody(lead: lead);
+    return await launchEmail(email: lead.email, subject: subject, body: body);
+  }
+
+  /// Opens Website preview in external browser
   static Future<bool> launchWebsitePreview(String url) async {
     String formattedUrl = url.trim();
     if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
@@ -54,7 +77,9 @@ class DispatchService {
     final uri = Uri.tryParse(formattedUrl);
     if (uri != null) {
       try {
-        return await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (await canLaunchUrl(uri)) {
+          return await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
       } catch (_) {
         return false;
       }
@@ -62,85 +87,85 @@ class DispatchService {
     return false;
   }
 
-  /// Sends the official polite apology via WhatsApp to an unassigned contact before archiving
+  /// Sends the polite apology via WhatsApp to an unassigned contact before archiving
   static Future<bool> launchApologyWhatsApp({
     required String phone,
     required String apologyText,
   }) async {
-    final cleanPhone = sanitizePhoneNumber(phone);
-    final encoded = Uri.encodeComponent(apologyText);
-    final uri = Uri.parse('https://wa.me/$cleanPhone?text=$encoded');
-    try {
-      return await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      return false;
-    }
+    return await launchWhatsApp(phone: phone, message: apologyText);
   }
 
   /// Sanitizes phone number to international MENA format digits only
   static String sanitizePhoneNumber(String phone) {
-    String cleaned = phone.replaceAll(RegExp(r'[^\d+]'), '');
-    if (cleaned.startsWith('+')) {
-      cleaned = cleaned.substring(1);
-    }
-    return cleaned;
+    return phone.replaceAll(RegExp(r'[^0-9]'), '');
   }
 
-  /// Generates high-converting WhatsApp message tailored to marketing gap, location, and remote agility
+  /// 100% human-written, conversational, peer-level WhatsApp copy
+  /// Tailored for Saudi/GCC decision-makers (Zero robotic fluff)
   static String generateWhatsAppCopy({
     required Lead lead,
     required bool preferArabic,
   }) {
     if (preferArabic) {
-      return '''السلام عليكم ورحمة الله،
-تحياتي لفريق ${lead.companyName} (${lead.corridor}).
+      final nameGreeting = lead.contactName.isNotEmpty
+          ? 'أخوي ${lead.contactName}'
+          : 'فريق ${lead.companyName}';
 
-لاحظنا خلال تدقيق تسويقي سريع لموقعكم أن هناك فرصة نمو استثنائية لم تُستغل بعد:
-[ ${lead.marketingGap} ] ${lead.marketingGapDetails.isNotEmpty ? "- ${lead.marketingGapDetails}" : ""}
+      return '''هلا والله $nameGreeting، مساك الله بالخير.
 
-نحن وكالة نمو رقمي متخصصة في أسواق الشرق الأوسط، ونقدم نموذج عمل مرن وعن بُعد (Cross-Border Growth Sprints) يحقق لعملائنا في ${lead.country} أسرع عائد على الإنفاق الإعلاني (ROAS) وبأقل تكلفة استحواذ.
+كنت مار على موقعكم (${lead.websiteUrl}) خلال مراجعة شركات ${lead.corridor}، ولاحظت شغلة دقيقة قاعدة تضيع عليكم عملاء يومياً:
+👉 ${lead.marketingGap} ${lead.marketingGapDetails.isNotEmpty ? "(${lead.marketingGapDetails})" : ""}
 
-هل يناسبكم اتصال سريع مدته 10 دقائق هذا الأسبوع لاستعراض خارطة طريق مجانية تضاعف وصولكم لعملائكم المستهدفين؟''';
+إحنا شغالين مع شركات في الرياض والخليج بنموذج نمو ريموت مرن وسريع (Cross-Border Growth Sprints) بدون هدر وتكاليف الوكالات التقليدية، وتركيزنا مباشر على مضاعفة الـ ROAS واستقطاب عملاء فعليين جاهزين للتعاقد.
+
+ما بطول عليك، هل يناسبك اتصال سريع 10 دقائق على زووم هذا الأسبوع أوريك الخطة المجانية؟''';
     } else {
-      return '''Hello ${lead.contactName.isNotEmpty ? lead.contactName : "Team ${lead.companyName}"},
+      final nameGreeting = lead.contactName.isNotEmpty ? lead.contactName : "there";
 
-We conducted a brief digital acquisition audit for ${lead.companyName} in ${lead.corridor} and spotted a critical growth bottleneck:
-[ ${lead.marketingGap} ] ${lead.marketingGapDetails.isNotEmpty ? "- ${lead.marketingGapDetails}" : ""}
+      return '''Hey $nameGreeting,
 
-Our MENA-wide growth agency provides remote, cross-border digital acquisition sprints with proven high-ROAS funnels across ${lead.country}.
+Was checking out companies around ${lead.corridor} today and took a look at ${lead.companyName} (${lead.websiteUrl}).
 
-Would you be open to a 10-minute discovery call this week to review our complimentary audit roadmap?''';
+Noticed an immediate acquisition leak on your setup:
+👉 ${lead.marketingGap} ${lead.marketingGapDetails.isNotEmpty ? "(${lead.marketingGapDetails})" : ""}
+
+Basically, high-intent traffic across ${lead.country} is visiting without proper tracking or retargeting funnels.
+
+We run lean, cross-border remote growth sprints for GCC brands — strictly performance-driven with zero agency bloat.
+
+Open to a brief 10-minute Zoom walkthrough this Wednesday to show you the fix?''';
     }
   }
 
-  /// Pre-filled email subject line
+  /// 100% human-written, peer-level cold email subject
   static String generateEmailSubject({required Lead lead}) {
-    return 'Strategic Acquisition Audit: Growth Roadmap for ${lead.companyName} (${lead.marketingGap})';
+    return 'Quick observation on ${lead.companyName}\'s acquisition funnel (${lead.corridor})';
   }
 
-  /// Pre-filled email pitch body
+  /// 100% human-written, conversational, peer-level cold proposal body
   static String generateEmailBody({required Lead lead}) {
-    return '''Dear ${lead.contactName.isNotEmpty ? lead.contactName : "Executive Leadership"},
+    final contactGreeting = lead.contactName.isNotEmpty ? lead.contactName : "there";
 
-I hope this email finds you well at ${lead.companyName}.
+    return '''Hi $contactGreeting,
 
-Our agency performance team recently analyzed digital presence across key commercial hubs in ${lead.corridor}, ${lead.country}. We noticed a major untapped opportunity regarding your digital marketing architecture:
+I was reviewing digital conversion setups for businesses in ${lead.corridor}, ${lead.country} and came across ${lead.companyName}.
 
-Detected Gap: ${lead.marketingGap}
-Audit Detail: ${lead.marketingGapDetails.isNotEmpty ? lead.marketingGapDetails : "Underutilized conversion funnels and acquisition tracking."}
+I spotted a clear performance bottleneck that’s likely leaking qualified revenue:
+• Bottleneck: ${lead.marketingGap}
+• Detail: ${lead.marketingGapDetails.isNotEmpty ? lead.marketingGapDetails : "Traffic is landing but dropping off without automated retargeting or tracking."}
 
-How We Help:
-We deliver high-impact, MENA remote growth sprints. Because our model operates remotely with senior acquisition talent across the GCC and broader Middle East, we eliminate traditional agency bloat and deliver 2x-3x higher ROAS within 30 days.
+How we operate differently:
+Rather than standard bloated retainers, we run agile, remote performance sprints with senior acquisition strategists across the GCC. We step in, implement the tracking and high-converting funnels, and prove ROI within 30 days.
 
-Validated Collaboration:
-- Agreement: Full cross-border remote execution with weekly strategic sprints.
-- Transparency: Live performance dashboards, dedicated Slack/WhatsApp channel, and bi-weekly executive reviews.
+Remote Collaboration Highlights:
+• Live performance telemetry & dashboard
+• Zero wasted overhead — 100% focused on ROAS
+• Fast execution with cross-border GCC agility
 
-Would you be available for a brief 10-minute Zoom or Google Meet walkthrough this Wednesday or Thursday?
+Do you have 10 minutes this Wednesday or Thursday for a quick, no-pitch Zoom call? I’d be glad to share a tailored 1-page roadmap.
 
-Best regards,
+Best,
 
-Growth Partnerships Director
-MENA Digital Acquisition Group''';
+Head of Growth | MENA Performance Group''';
   }
 }
