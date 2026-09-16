@@ -64,15 +64,21 @@ class _ExecutiveDashboardScreenState
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        HapticFeedback.selectionClick();
-        final tabs = ['new', 'contacted', 'all', 'blacklisted'];
-        ref.read(filterProvider.notifier).state = ref
-            .read(filterProvider)
-            .copyWith(activeTab: tabs[_tabController.index]);
+    _tabController.addListener(_onTabControllerTick);
+  }
+
+  void _onTabControllerTick() {
+    if (!_tabController.indexIsChanging) {
+      final tabs = ['new', 'contacted', 'all', 'blacklisted'];
+      if (_tabController.index < tabs.length) {
+        final targetTab = tabs[_tabController.index];
+        final currentTab = ref.read(filterProvider).activeTab;
+        if (currentTab != targetTab) {
+          ref.read(filterProvider.notifier).state =
+              ref.read(filterProvider).copyWith(activeTab: targetTab);
+        }
       }
-    });
+    }
   }
 
   @override
@@ -189,6 +195,15 @@ class _ExecutiveDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Synchronize TabController smoothly when activeTab changes from QuickStatsBar or filters
+    ref.listen<String>(filterProvider.select((f) => f.activeTab), (previous, next) {
+      final tabs = ['new', 'contacted', 'all', 'blacklisted'];
+      final targetIndex = tabs.indexOf(next);
+      if (targetIndex != -1 && _tabController.index != targetIndex) {
+        _tabController.animateTo(targetIndex);
+      }
+    });
+
     final filteredLeads = ref.watch(filteredLeadsProvider);
 
     return Scaffold(
@@ -268,6 +283,14 @@ class _ExecutiveDashboardScreenState
             ),
             child: TabBar(
               controller: _tabController,
+              onTap: (index) {
+                HapticFeedback.selectionClick();
+                final tabs = ['new', 'contacted', 'all', 'blacklisted'];
+                if (index < tabs.length) {
+                  ref.read(filterProvider.notifier).state =
+                      ref.read(filterProvider).copyWith(activeTab: tabs[index]);
+                }
+              },
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
                 color: AppTheme.electricCyan.withOpacity(0.18),
@@ -308,6 +331,7 @@ class _ExecutiveDashboardScreenState
                       backgroundColor: AppTheme.cardSurfaceRaw,
                       onRefresh: () async {
                         HapticFeedback.mediumImpact();
+                        await StorageService.syncLeadsFromFeed();
                         ref.read(leadsProvider.notifier).refresh();
                       },
                       child: ListView.builder(

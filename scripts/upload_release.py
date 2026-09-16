@@ -23,79 +23,50 @@ def get_git_token():
             return line.split("=", 1)[1].strip()
     return None
 
-def create_and_upload_release():
-    token = get_git_token()
-    if not token:
-        print("Error: Could not retrieve GitHub token from git credential manager.")
-        sys.exit(1)
-
-    repo = "sultantipu199/dm-client-hunting"
-    tag = "v1.0.1"
-    apk_path = os.path.abspath("build/app/outputs/flutter-apk/app-release.apk")
-
-    if not os.path.exists(apk_path):
-        print(f"Error: APK not found at {apk_path}")
-        sys.exit(1)
-
+def upload_to_tag(tag, apk_path, token, repo, title, body_text):
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json",
     }
-
-    # 1. Check if release already exists
     rel_url = f"https://api.github.com/repos/{repo}/releases/tags/{tag}"
     resp = requests.get(rel_url, headers=headers)
     
-    release_data = None
     if resp.status_code == 200:
         print(f"Existing release found for {tag}.")
         release_data = resp.json()
     else:
-        # Create release
         create_url = f"https://api.github.com/repos/{repo}/releases"
         payload = {
             "tag_name": tag,
             "target_commitish": "main",
-            "name": "DM Client Hunter MENA v1.0.1 (Production Release)",
-            "body": (
-                "### DM Client Hunter MENA v1.0.1\n\n"
-                "- **URL & DNS Pre-Flight Validator**: Eliminates broken corporate domains (NXDOMAIN / gaierror) and 404/5xx pages.\n"
-                "- **Verified Google Maps Fallback Generator**: Guaranteed navigation fallback for unverified sites.\n"
-                "- **Flutter Lead Card UI Hardening**: Dynamic live site vs. Maps pin action and graceful SnackBar handling.\n\n"
-                "**Direct Download**: Download `app-release.apk` below."
-            ),
+            "name": title,
+            "body": body_text,
             "draft": False,
             "prerelease": False,
         }
         create_resp = requests.post(create_url, headers=headers, json=payload)
         if create_resp.status_code not in (200, 201):
-            print(f"Failed to create release: {create_resp.status_code} {create_resp.text}")
-            sys.exit(1)
+            print(f"Failed to create release {tag}: {create_resp.status_code} {create_resp.text}")
+            return None
         release_data = create_resp.json()
-        print(f"Created release: {release_data.get('html_url')}")
+        print(f"Created release {tag}: {release_data.get('html_url')}")
 
-    upload_url_template = release_data.get("upload_url", "")
-    # upload_url format: https://uploads.github.com/repos/.../assets{?name,label}
-    upload_url = upload_url_template.split("{")[0]
-
-    # Delete existing asset with same name if present
+    upload_url = release_data.get("upload_url", "").split("{")[0]
     asset_name = "app-release.apk"
     for asset in release_data.get("assets", []):
-        if asset.get("name") in (asset_name, "DM_Client_Hunter_v1.0.1.apk"):
+        if asset.get("name") in (asset_name, f"DM_Client_Hunter_{tag}.apk", "DM_Client_Hunter_Release_v1.0.1.apk", "DM_Client_Hunter_Release_v1.0.2.apk"):
             del_url = asset.get("url")
-            print(f"Deleting existing asset {asset.get('name')}...")
+            print(f"Deleting existing asset {asset.get('name')} from {tag}...")
             requests.delete(del_url, headers=headers)
 
-    # Upload APK asset
-    print(f"Uploading {apk_path} ({os.path.getsize(apk_path)} bytes) to GitHub Release...")
+    print(f"Uploading {apk_path} ({os.path.getsize(apk_path)} bytes) to GitHub Release {tag}...")
     upload_headers = {
         "Authorization": f"token {token}",
         "Content-Type": "application/vnd.android.package-archive",
     }
-    
     with open(apk_path, "rb") as f:
         up_resp = requests.post(
-            f"{upload_url}?name={asset_name}&label=DM_Client_Hunter_Release_v1.0.1.apk",
+            f"{upload_url}?name={asset_name}&label=DM_Client_Hunter_Release_{tag}.apk",
             headers=upload_headers,
             data=f,
         )
@@ -103,12 +74,57 @@ def create_and_upload_release():
     if up_resp.status_code in (200, 201):
         asset_info = up_resp.json()
         download_url = asset_info.get("browser_download_url")
-        print("\nSUCCESS! Upload completed.")
+        print(f"\nSUCCESS for {tag}!")
         print(f"GitHub Release Page: {release_data.get('html_url')}")
         print(f"Direct APK Download URL: {download_url}")
+        return download_url
     else:
-        print(f"Upload failed: {up_resp.status_code} {up_resp.text}")
+        print(f"Upload to {tag} failed: {up_resp.status_code} {up_resp.text}")
+        return None
+
+def main():
+    token = get_git_token()
+    if not token:
+        print("Error: Could not retrieve GitHub token from git credential manager.")
         sys.exit(1)
 
+    repo = "sultantipu199/dm-client-hunting"
+    cache_apk = r"C:\Android\build_cache\dm_build\app\outputs\flutter-apk\app-release.apk"
+    local_apk = os.path.abspath("build/app/outputs/flutter-apk/app-release.apk")
+
+    if os.path.exists(cache_apk):
+        apk_path = cache_apk
+        try:
+            os.makedirs(os.path.dirname(local_apk), exist_ok=True)
+            import shutil
+            shutil.copy2(cache_apk, local_apk)
+        except Exception:
+            pass
+    elif os.path.exists(local_apk):
+        apk_path = local_apk
+    else:
+        print(f"Error: APK not found at {cache_apk} or {local_apk}")
+        sys.exit(1)
+
+    body = (
+        "### DM Client Hunter MENA v1.0.2\n\n"
+        "- **RFC 6068 Percent-Encoding**: Strictly zero `+` signs across all native mail apps (Gmail, Outlook) and WhatsApp.\n"
+        "- **Bidirectional Tab Sync**: Complete synchronization between QuickStats HUD cards and top TabBar navigation.\n"
+        "- **Verified Web vs. Maps Pill**: Automatic Google Maps location query for unverified sites and live site routing with graceful fallbacks.\n"
+        "- **Hive Startup Feed Sync**: Ensures all installed devices automatically receive verified feed records while preserving contact history.\n\n"
+        "**Direct Download**: Download `app-release.apk` below."
+    )
+
+    tags = ["v1.0.2", "v1.0.1"]
+    for tag in tags:
+        upload_to_tag(
+            tag=tag,
+            apk_path=apk_path,
+            token=token,
+            repo=repo,
+            title=f"DM Client Hunter MENA {tag} (Production Release)",
+            body_text=body,
+        )
+
 if __name__ == "__main__":
-    create_and_upload_release()
+    main()

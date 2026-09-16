@@ -26,9 +26,43 @@ class StorageService {
     _blacklistBox = await Hive.openBox<String>(blacklistContactsBoxName);
     _settingsBox = await Hive.openBox<dynamic>(settingsBoxName);
 
-    // Initial seed if leads box is empty
+    // Seed or sync feed to ensure existing installs receive verified domain & Maps links
     if (_leadsBox!.isEmpty) {
       await _seedInitialLeads();
+    } else {
+      await syncLeadsFromFeed();
+    }
+  }
+
+  /// Synchronizes leads from assets/data/leads_feed.json with local Hive storage.
+  /// Updates feed metadata (verified URLs, fallback Google Maps links, marketing gaps)
+  /// while strictly preserving user-modified state (status: contacted/blacklisted,
+  /// contactedAt timestamp, notes, and AI strategic reply cache).
+  static Future<void> syncLeadsFromFeed() async {
+    try {
+      final jsonString = await rootBundle.loadString('assets/data/leads_feed.json');
+      final List<dynamic> list = jsonDecode(jsonString) as List<dynamic>;
+      for (final item in list) {
+        final feedLead = Lead.fromJson(item as Map<String, dynamic>);
+        if (isPhoneBlacklisted(feedLead.phone)) continue;
+
+        final existing = _leadsBox?.get(feedLead.id);
+        if (existing != null) {
+          // Merge: use verified feedLead as base for URL/gap/company details,
+          // but preserve user interaction state.
+          final updated = feedLead.copyWith(
+            status: existing.status,
+            contactedAt: existing.contactedAt,
+            notes: existing.notes.isNotEmpty ? existing.notes : feedLead.notes,
+            aiAnalysisJson: existing.aiAnalysisJson ?? feedLead.aiAnalysisJson,
+          );
+          await _leadsBox?.put(feedLead.id, updated);
+        } else {
+          await _leadsBox?.put(feedLead.id, feedLead);
+        }
+      }
+    } catch (_) {
+      // Fallback silently if asset load encounters an issue
     }
   }
 

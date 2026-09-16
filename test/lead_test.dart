@@ -170,5 +170,44 @@ void main() {
       expect(fromJson.websiteUrl, isNull);
       expect(fromJson.effectiveActionUrl, deadLead.primaryActionUrl);
     });
+
+    test('Kuwait Cloud Commerce email pitch generates RFC-compliant mailto URI with zero plus signs', () {
+      final kuwaitLead = Lead(
+        id: 'mena_lead_13',
+        companyName: 'Kuwait Cloud Commerce',
+        websiteUrl: null,
+        hasLiveWebsite: false,
+        primaryActionUrl: 'https://www.google.com/maps/search/?api=1&query=Kuwait%20Cloud%20Commerce%20Sharq%20Financial%20District%20%28Kuwait%20City%29%20Kuwait',
+        country: 'Kuwait',
+        corridor: 'Sharq Financial District (Kuwait City)',
+        sector: 'High-Growth E-Commerce Brands',
+        marketingGap: '🛠️ Outdated Website / No Mobile Funnel',
+        marketingGapDetails: 'High mobile bounce rate; slow responsive load times and broken booking funnel.',
+        phone: '+96599812450',
+        email: 'sales@kuwaitcloud.kw',
+        contactName: 'Meshari Al-Mutawa',
+        contactRole: 'VP Marketing',
+        agreesToRemoteWork: true,
+        createdAt: DateTime.now(),
+      );
+
+      final subject = DispatchService.generateEmailSubject(lead: kuwaitLead);
+      final body = DispatchService.generateEmailBody(lead: kuwaitLead);
+
+      final encSubject = DispatchService.encodeParam(subject);
+      final encBody = DispatchService.encodeParam(body);
+
+      expect(encSubject.contains('+'), false);
+      expect(encBody.contains('+'), false);
+      expect(encSubject.contains('%20'), true);
+      expect(encBody.contains('%20'), true);
+
+      final mailtoUri = Uri.parse('mailto:${kuwaitLead.email}?subject=$encSubject&body=$encBody');
+      expect(mailtoUri.scheme, 'mailto');
+      expect(mailtoUri.path, 'sales@kuwaitcloud.kw');
+      expect(mailtoUri.toString().contains('+'), false);
+      expect(kuwaitLead.hasLiveWebsite, false);
+      expect(kuwaitLead.effectiveActionUrl.contains('maps/search'), true);
+    });
   });
 }

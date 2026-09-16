@@ -96,44 +96,32 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
     }
   }
 
-  /// Trigger 1-Tap WhatsApp Outreach with medium impact haptic and instant synchronous state-demotion
+  /// Trigger 1-Tap WhatsApp Outreach with medium impact haptic and fluid transition
   Future<void> _triggerWhatsAppOutreach() async {
     HapticFeedback.mediumImpact();
-
-    // 1. Synchronously trigger state-demotion in Riverpod & Hive, starting slide-out animation
-    _handleStateShift();
-
-    // 2. Launch WhatsApp with RFC-compliant encoding (strictly zero '+' signs)
-    await DispatchService.launchWhatsAppOutreach(lead: widget.lead, preferArabic: true);
+    unawaited(DispatchService.launchWhatsAppOutreach(lead: widget.lead, preferArabic: true));
+    await _handleStateShift();
   }
 
-  /// Trigger 1-Tap Direct Email Pitch with medium impact haptic and instant synchronous state-demotion
+  /// Trigger 1-Tap Direct Email Pitch with medium impact haptic and fluid transition
   Future<void> _triggerEmailPitch() async {
     HapticFeedback.mediumImpact();
-
-    // 1. Synchronously trigger state-demotion in Riverpod & Hive, starting slide-out animation
-    _handleStateShift();
-
-    // 2. Launch native email with RFC-compliant encoding (strictly zero '+' signs)
-    await DispatchService.launchEmailPitch(lead: widget.lead);
+    unawaited(DispatchService.launchEmailPitch(lead: widget.lead));
+    await _handleStateShift();
   }
 
-  void _handleStateShift() {
-    // Mark contacted in Riverpod + Hive immediately
-    ref.read(leadsProvider.notifier).markContacted(widget.lead.id);
-
-    // Only slide out if currently in 'new' state (demoting New -> Contacted)
+  Future<void> _handleStateShift() async {
     if (widget.lead.status == 'new') {
-      setState(() {
-        _isSlidingOut = true;
-      });
-
-      // Provide smooth slide-out animation delay
-      Future.delayed(const Duration(milliseconds: 320), () {
-        if (mounted) {
-          widget.onDismissed?.call();
-        }
-      });
+      if (mounted) {
+        setState(() {
+          _isSlidingOut = true;
+        });
+      }
+      await Future.delayed(const Duration(milliseconds: 280));
+    }
+    if (mounted) {
+      await ref.read(leadsProvider.notifier).markContacted(widget.lead.id);
+      widget.onDismissed?.call();
     }
   }
 
@@ -204,6 +192,7 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                                 ? 'Visit Corporate Website'
                                 : 'Search Location on Google Maps',
                             child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 DispatchService.launchCompanyAction(
@@ -212,7 +201,7 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.all(4),
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: widget.lead.hasLiveWebsite
                                       ? AppTheme.electricCyan.withOpacity(0.12)
@@ -225,14 +214,30 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                                     width: 0.8,
                                   ),
                                 ),
-                                child: Icon(
-                                  widget.lead.hasLiveWebsite
-                                      ? Icons.open_in_new_rounded
-                                      : Icons.location_on_outlined,
-                                  size: 14,
-                                  color: widget.lead.hasLiveWebsite
-                                      ? AppTheme.electricCyan
-                                      : AppTheme.amberGold,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      widget.lead.hasLiveWebsite
+                                          ? Icons.open_in_new_rounded
+                                          : Icons.location_on_rounded,
+                                      size: 12,
+                                      color: widget.lead.hasLiveWebsite
+                                          ? AppTheme.electricCyan
+                                          : AppTheme.amberGold,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      widget.lead.hasLiveWebsite ? 'Web' : 'Maps',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: widget.lead.hasLiveWebsite
+                                            ? AppTheme.electricCyan
+                                            : AppTheme.amberGold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
