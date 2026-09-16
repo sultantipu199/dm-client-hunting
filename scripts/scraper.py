@@ -17,6 +17,22 @@ from datetime import datetime, timezone, timedelta
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
+# Asynchronous Pre-Flight URL & DNS Validator and Verified Fallback Engine
+try:
+    from scripts.url_validator import (
+        batch_verify_leads,
+        verify_and_harden_lead,
+        validate_url,
+        generate_fallback_maps_url,
+    )
+except ImportError:
+    from url_validator import (
+        batch_verify_leads,
+        verify_and_harden_lead,
+        validate_url,
+        generate_fallback_maps_url,
+    )
+
 # Target Hubs & Corridors
 CORRIDORS = {
     "Saudi Arabia (KSA)": [
@@ -189,14 +205,21 @@ def run_scraper():
         new_leads.append(lead_obj)
         existing_phones.add(phone)
 
-    print(f"✅ Generated & validated {len(new_leads)} new Middle East remote-ready enterprise leads.")
+    print(f"✅ Generated {len(new_leads)} new Middle East remote-ready enterprise leads.")
 
     combined = existing_leads + new_leads
+
+    print(f"🔍 Running Asynchronous Pre-Flight URL & DNS Validator across {len(combined)} records...")
+    verified_leads = batch_verify_leads(combined, max_workers=10)
+    live_count = sum(1 for l in verified_leads if l.get("has_live_website"))
+    fallback_count = len(verified_leads) - live_count
+    print(f"📊 Verification complete: {live_count} live corporate sites, {fallback_count} routed to verified Google Maps fallbacks.")
+
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(combined, f, indent=2, ensure_ascii=False)
+        json.dump(verified_leads, f, indent=2, ensure_ascii=False)
 
-    print(f"🎉 Pipeline completed. Total leads in feed: {len(combined)}")
+    print(f"🎉 Pipeline completed. Total hardened leads in feed: {len(verified_leads)}")
 
 if __name__ == "__main__":
     run_scraper()

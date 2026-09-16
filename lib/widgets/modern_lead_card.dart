@@ -198,21 +198,42 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          // Website preview tap icon
-                          GestureDetector(
-                            onTap: () => DispatchService.launchWebsitePreview(
-                              widget.lead.websiteUrl,
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: AppTheme.electricCyan.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: const Icon(
-                                Icons.open_in_new_rounded,
-                                size: 14,
-                                color: AppTheme.electricCyan,
+                          // Hardened Corporate Link / Google Maps Directory Action
+                          Tooltip(
+                            message: widget.lead.hasLiveWebsite
+                                ? 'Visit Corporate Website'
+                                : 'Search Location on Google Maps',
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                DispatchService.launchCompanyAction(
+                                  context: context,
+                                  lead: widget.lead,
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: widget.lead.hasLiveWebsite
+                                      ? AppTheme.electricCyan.withOpacity(0.12)
+                                      : AppTheme.amberGold.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: widget.lead.hasLiveWebsite
+                                        ? AppTheme.electricCyan.withOpacity(0.25)
+                                        : AppTheme.amberGold.withOpacity(0.25),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Icon(
+                                  widget.lead.hasLiveWebsite
+                                      ? Icons.open_in_new_rounded
+                                      : Icons.location_on_outlined,
+                                  size: 14,
+                                  color: widget.lead.hasLiveWebsite
+                                      ? AppTheme.electricCyan
+                                      : AppTheme.amberGold,
+                                ),
                               ),
                             ),
                           ),

@@ -2,7 +2,7 @@
   {
     "id": "mena_lead_01",
     "company_name": "Al Narjis Prime Estates",
-    "website_url": "https://narjisestates.sa",
+    "website_url": null,
     "country": "Saudi Arabia (KSA)",
     "corridor": "Al Narjis Commercial Corridor",
     "sector": "Luxury Real Estate Agencies",
@@ -16,12 +16,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T08:30:00.000Z",
-    "notes": "Target for luxury villa acquisition funnel & GCC investor ads."
+    "notes": "Target for luxury villa acquisition funnel & GCC investor ads.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Al%20Narjis%20Prime%20Estates%20Al%20Narjis%20Commercial%20Corridor%20Saudi%20Arabia%20%28KSA%29"
   },
   {
     "id": "mena_lead_02",
     "company_name": "KAFD Sovereign Advisory",
-    "website_url": "https://kafdsovereign.sa",
+    "website_url": null,
     "country": "Saudi Arabia (KSA)",
     "corridor": "KAFD Phase 1 & 2",
     "sector": "Newly Formed Corporate Firms",
@@ -35,12 +37,14 @@
     "remote_tier": "GCC Remote Sprints",
     "status": "new",
     "created_at": "2026-09-15T11:00:00.000Z",
-    "notes": "High willingness for remote B2B LinkedIn and Google search retainer."
+    "notes": "High willingness for remote B2B LinkedIn and Google search retainer.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=KAFD%20Sovereign%20Advisory%20KAFD%20Phase%201%20%26%202%20Saudi%20Arabia%20%28KSA%29"
   },
   {
     "id": "mena_lead_03",
     "company_name": "DIFC Apex Derma & Aesthetic",
-    "website_url": "https://apexaestheticdubai.ae",
+    "website_url": null,
     "country": "United Arab Emirates (UAE)",
     "corridor": "DIFC Financial Centre (Dubai)",
     "sector": "Private Healthcare & Aesthetic Clinics",
@@ -54,12 +58,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T14:20:00.000Z",
-    "notes": "Wants immediate remote CRO and WhatsApp appointment booking funnel."
+    "notes": "Wants immediate remote CRO and WhatsApp appointment booking funnel.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=DIFC%20Apex%20Derma%20%26%20Aesthetic%20DIFC%20Financial%20Centre%20%28Dubai%29%20United%20Arab%20Emirates%20%28UAE%29"
   },
   {
     "id": "mena_lead_04",
     "company_name": "Lusail Marina Superyachts",
-    "website_url": "https://lusailsuperyachts.qa",
+    "website_url": null,
     "country": "Qatar",
     "corridor": "Lusail Marina Financial District",
     "sector": "Luxury Real Estate Agencies",
@@ -73,12 +79,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T16:45:00.000Z",
-    "notes": "Verified remote-ready agreement for remote creative and paid ads."
+    "notes": "Verified remote-ready agreement for remote creative and paid ads.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Lusail%20Marina%20Superyachts%20Lusail%20Marina%20Financial%20District%20Qatar"
   },
   {
     "id": "mena_lead_05",
     "company_name": "Smart Village CloudMatrix",
-    "website_url": "https://cloudmatrix.eg",
+    "website_url": null,
     "country": "Egypt",
     "corridor": "Smart Village Tech Corridor (Giza)",
     "sector": "B2B Tech & SaaS Solutions",
@@ -92,12 +100,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T18:00:00.000Z",
-    "notes": "Remote contract verified. Targets enterprise accounts in KSA & UAE."
+    "notes": "Remote contract verified. Targets enterprise accounts in KSA & UAE.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Smart%20Village%20CloudMatrix%20Smart%20Village%20Tech%20Corridor%20%28Giza%29%20Egypt"
   },
   {
     "id": "mena_lead_06",
     "company_name": "Al Hamra Global Wealth Management",
-    "website_url": "https://alhamrawealth.kw",
+    "website_url": null,
     "country": "Kuwait",
     "corridor": "Al Hamra Corporate Strip",
     "sector": "Management & Strategy Consulting",
@@ -111,12 +121,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T20:10:00.000Z",
-    "notes": "High retainer budget for qualified private client leads."
+    "notes": "High retainer budget for qualified private client leads.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Al%20Hamra%20Global%20Wealth%20Management%20Al%20Hamra%20Corporate%20Strip%20Kuwait"
   },
   {
     "id": "mena_lead_07",
     "company_name": "New Murabba Urban Developers",
-    "website_url": "https://murabbadevelopers.sa",
+    "website_url": null,
     "country": "Saudi Arabia (KSA)",
     "corridor": "New Murabba Development Corridor",
     "sector": "Luxury Real Estate Agencies",
@@ -130,12 +142,14 @@
     "remote_tier": "GCC Remote Sprints",
     "status": "new",
     "created_at": "2026-09-16T01:30:00.000Z",
-    "notes": "Recently launched 3 commercial complexes; urgently needs remote acquisition partner."
+    "notes": "Recently launched 3 commercial complexes; urgently needs remote acquisition partner.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=New%20Murabba%20Urban%20Developers%20New%20Murabba%20Development%20Corridor%20Saudi%20Arabia%20%28KSA%29"
   },
   {
     "id": "mena_lead_08",
     "company_name": "Bahrain Bay Maritime Finance",
-    "website_url": "https://bbmaritime.bh",
+    "website_url": null,
     "country": "Bahrain",
     "corridor": "Bahrain Financial Harbour",
     "sector": "Newly Formed Corporate Firms",
@@ -149,12 +163,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-16T04:15:00.000Z",
-    "notes": "Seeking remote agency to manage regional B2B reputation and outbound pipeline."
+    "notes": "Seeking remote agency to manage regional B2B reputation and outbound pipeline.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Bahrain%20Bay%20Maritime%20Finance%20Bahrain%20Financial%20Harbour%20Bahrain"
   },
   {
     "id": "mena_lead_09",
     "company_name": "Apex Falcon Real Estate",
-    "website_url": "https://apexfalcon.ae",
+    "website_url": null,
     "country": "United Arab Emirates (UAE)",
     "corridor": "DIFC Financial Centre (Dubai)",
     "sector": "Luxury Real Estate Agencies",
@@ -168,12 +184,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-16T03:49:24.786937+00:00",
-    "notes": "Verified high-ticket entity with remote collaboration readiness."
+    "notes": "Verified high-ticket entity with remote collaboration readiness.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Apex%20Falcon%20Real%20Estate%20DIFC%20Financial%20Centre%20%28Dubai%29%20United%20Arab%20Emirates%20%28UAE%29"
   },
   {
     "id": "mena_lead_10",
     "company_name": "Riyadh Health & Wellness Clinic",
-    "website_url": "https://riyadhhealth.sa",
+    "website_url": null,
     "country": "Saudi Arabia (KSA)",
     "corridor": "Al Yasmin Tech & Retail",
     "sector": "Private Healthcare & Aesthetic Clinics",
@@ -187,12 +205,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T16:49:24.786937+00:00",
-    "notes": "Verified high-ticket entity with remote collaboration readiness."
+    "notes": "Verified high-ticket entity with remote collaboration readiness.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Riyadh%20Health%20%26%20Wellness%20Clinic%20Al%20Yasmin%20Tech%20%26%20Retail%20Saudi%20Arabia%20%28KSA%29"
   },
   {
     "id": "mena_lead_11",
     "company_name": "Lusail Tech Ventures",
-    "website_url": "https://lusailventures.qa",
+    "website_url": null,
     "country": "Qatar",
     "corridor": "Lusail Marina Financial District",
     "sector": "B2B Tech & SaaS Solutions",
@@ -206,12 +226,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T11:49:24.786937+00:00",
-    "notes": "Verified high-ticket entity with remote collaboration readiness."
+    "notes": "Verified high-ticket entity with remote collaboration readiness.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Lusail%20Tech%20Ventures%20Lusail%20Marina%20Financial%20District%20Qatar"
   },
   {
     "id": "mena_lead_12",
     "company_name": "Al Khuzama Strategic Capital",
-    "website_url": "https://khuzamacapital.sa",
+    "website_url": null,
     "country": "Saudi Arabia (KSA)",
     "corridor": "Al Khuzama Executive",
     "sector": "Management & Strategy Consulting",
@@ -225,12 +247,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-14T12:49:24.786937+00:00",
-    "notes": "Verified high-ticket entity with remote collaboration readiness."
+    "notes": "Verified high-ticket entity with remote collaboration readiness.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Al%20Khuzama%20Strategic%20Capital%20Al%20Khuzama%20Executive%20Saudi%20Arabia%20%28KSA%29"
   },
   {
     "id": "mena_lead_13",
     "company_name": "Kuwait Cloud Commerce",
-    "website_url": "https://kuwaitcloud.kw",
+    "website_url": null,
     "country": "Kuwait",
     "corridor": "Sharq Financial District (Kuwait City)",
     "sector": "High-Growth E-Commerce Brands",
@@ -244,12 +268,14 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-16T05:49:24.786937+00:00",
-    "notes": "Verified high-ticket entity with remote collaboration readiness."
+    "notes": "Verified high-ticket entity with remote collaboration readiness.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Kuwait%20Cloud%20Commerce%20Sharq%20Financial%20District%20%28Kuwait%20City%29%20Kuwait"
   },
   {
     "id": "mena_lead_14",
     "company_name": "Zayed Industrial Robotics",
-    "website_url": "https://zayedrobotics.eg",
+    "website_url": null,
     "country": "Egypt",
     "corridor": "Sheikh Zayed Corporate Park",
     "sector": "Newly Formed Corporate Firms",
@@ -263,6 +289,8 @@
     "remote_tier": "MENA Cross-Border Retainer",
     "status": "new",
     "created_at": "2026-09-15T17:49:24.786937+00:00",
-    "notes": "Verified high-ticket entity with remote collaboration readiness."
+    "notes": "Verified high-ticket entity with remote collaboration readiness.",
+    "has_live_website": false,
+    "primary_action_url": "https://www.google.com/maps/search/?api=1&query=Zayed%20Industrial%20Robotics%20Sheikh%20Zayed%20Corporate%20Park%20Egypt"
   }
 ]

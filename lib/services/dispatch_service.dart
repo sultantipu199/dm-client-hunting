@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/lead.dart';
+import '../theme/app_theme.dart';
 
 /// Universal RFC-compliant dispatch service for WhatsApp, Email, and Web preview.
 /// Strictly eliminates unwanted '+' signs, preserving clean paragraphs, bullet points,
@@ -39,21 +41,32 @@ class DispatchService {
     return await launchWhatsApp(phone: lead.phone, message: message);
   }
 
-  /// 2. Email Dispatcher (RFC-compliant encoding, Zero '+' signs)
+  /// 2. Email Dispatcher (RFC-compliant percent-encoding)
   static Future<bool> launchEmail({
     required String email,
     required String subject,
     required String body,
   }) async {
-    final uri = Uri(
-      scheme: 'mailto',
-      path: email,
-      query: 'subject=${encodeParam(subject)}&body=${encodeParam(body)}',
-    );
+    final encodedSubject = encodeParam(subject);
+    final encodedBody = encodeParam(body);
+    final uri = Uri.parse('mailto:$email?subject=$encodedSubject&body=$encodedBody');
 
     try {
       if (await canLaunchUrl(uri)) {
         return await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+      return false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 3. Direct Phone Dialer
+  static Future<bool> launchDialer(String phone) async {
+    final uri = Uri.parse('tel:$phone');
+    try {
+      if (await canLaunchUrl(uri)) {
+        return await launchUrl(uri);
       }
       return false;
     } catch (_) {
@@ -68,8 +81,9 @@ class DispatchService {
     return await launchEmail(email: lead.email, subject: subject, body: body);
   }
 
-  /// Opens Website preview in external browser
-  static Future<bool> launchWebsitePreview(String url) async {
+  /// Opens Website preview in external browser with strict safety checks
+  static Future<bool> launchWebsitePreview(String? url) async {
+    if (url == null || url.trim().isEmpty) return false;
     String formattedUrl = url.trim();
     if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
       formattedUrl = 'https://$formattedUrl';
@@ -85,6 +99,50 @@ class DispatchService {
       }
     }
     return false;
+  }
+
+  /// Hardened company action launcher:
+  /// - Launches verified corporate site if live and verified.
+  /// - If launch fails, displays a subtle SnackBar and automatically redirects to verified Google Maps query.
+  /// - If unverified/dead, routes straight to the verified Google Maps query.
+  static Future<void> launchCompanyAction({
+    required BuildContext context,
+    required Lead lead,
+  }) async {
+    if (lead.hasLiveWebsite && lead.websiteUrl != null && lead.websiteUrl!.trim().isNotEmpty) {
+      final success = await launchWebsitePreview(lead.websiteUrl);
+      if (!success) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, color: AppTheme.amberGold, size: 18),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Corporate site currently inactive — Opening Maps fallback',
+                      style: TextStyle(fontSize: 13, color: AppTheme.cleanAlabaster),
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: AppTheme.cardSurfaceRaw,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: AppTheme.borderNeonSubtle),
+              ),
+            ),
+          );
+        }
+        await launchWebsitePreview(lead.effectiveActionUrl);
+      }
+    } else {
+      // Direct navigation to authoritative Google Maps query
+      await launchWebsitePreview(lead.effectiveActionUrl);
+    }
   }
 
   /// Sends the polite apology via WhatsApp to an unassigned contact before archiving
@@ -111,9 +169,13 @@ class DispatchService {
           ? 'أخوي ${lead.contactName}'
           : 'فريق ${lead.companyName}';
 
+      final siteRef = (lead.hasLiveWebsite && lead.websiteUrl != null && lead.websiteUrl!.isNotEmpty)
+          ? 'موقعكم (${lead.websiteUrl})'
+          : 'شركة ${lead.companyName}';
+
       return '''هلا والله $nameGreeting، مساك الله بالخير.
 
-كنت مار على موقعكم (${lead.websiteUrl}) خلال مراجعة شركات ${lead.corridor}، ولاحظت شغلة دقيقة قاعدة تضيع عليكم عملاء يومياً:
+كنت مار على $siteRef خلال مراجعة شركات ${lead.corridor}، ولاحظت شغلة دقيقة قاعدة تضيع عليكم عملاء يومياً:
 👉 ${lead.marketingGap} ${lead.marketingGapDetails.isNotEmpty ? "(${lead.marketingGapDetails})" : ""}
 
 إحنا شغالين مع شركات في الرياض والخليج بنموذج نمو ريموت مرن وسريع (Cross-Border Growth Sprints) بدون هدر وتكاليف الوكالات التقليدية، وتركيزنا مباشر على مضاعفة الـ ROAS واستقطاب عملاء فعليين جاهزين للتعاقد.
@@ -121,10 +183,13 @@ class DispatchService {
 ما بطول عليك، هل يناسبك اتصال سريع 10 دقائق على زووم هذا الأسبوع أوريك الخطة المجانية؟''';
     } else {
       final nameGreeting = lead.contactName.isNotEmpty ? lead.contactName : "there";
+      final siteRef = (lead.hasLiveWebsite && lead.websiteUrl != null && lead.websiteUrl!.isNotEmpty)
+          ? '${lead.companyName} (${lead.websiteUrl})'
+          : lead.companyName;
 
       return '''Hey $nameGreeting,
 
-Was checking out companies around ${lead.corridor} today and took a look at ${lead.companyName} (${lead.websiteUrl}).
+Was checking out companies around ${lead.corridor} today and took a look at $siteRef.
 
 Noticed an immediate acquisition leak on your setup:
 👉 ${lead.marketingGap} ${lead.marketingGapDetails.isNotEmpty ? "(${lead.marketingGapDetails})" : ""}

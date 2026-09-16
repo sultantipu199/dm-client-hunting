@@ -42,3 +42,8 @@ migrate_working_dir/
 # Sensitive local env
 .env
 local.env
+
+# Android & Python Build artifacts
+**/android/build/
+**/__pycache__/
+*.pyc

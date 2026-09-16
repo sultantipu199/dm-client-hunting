@@ -4,7 +4,9 @@ import 'package:hive/hive.dart';
 class Lead {
   final String id;
   final String companyName;
-  final String websiteUrl;
+  final String? websiteUrl;
+  final bool hasLiveWebsite;
+  final String? primaryActionUrl;
   final String country;
   final String corridor;
   final String sector;
@@ -25,7 +27,9 @@ class Lead {
   const Lead({
     required this.id,
     required this.companyName,
-    required this.websiteUrl,
+    this.websiteUrl,
+    this.hasLiveWebsite = false,
+    this.primaryActionUrl,
     required this.country,
     required this.corridor,
     required this.sector,
@@ -44,10 +48,31 @@ class Lead {
     this.aiAnalysisJson,
   });
 
+  /// Effective action URL: Verified live corporate site or fallback Google Maps directory query
+  String get effectiveActionUrl {
+    if (hasLiveWebsite && websiteUrl != null && websiteUrl!.trim().isNotEmpty) {
+      return websiteUrl!.trim();
+    }
+    if (primaryActionUrl != null && primaryActionUrl!.trim().isNotEmpty) {
+      return primaryActionUrl!.trim();
+    }
+    return fallbackMapsUrl;
+  }
+
+  /// Authoritative Google Maps search link fallback
+  String get fallbackMapsUrl {
+    final query = '$companyName $corridor $country'.trim();
+    return 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(query)}';
+  }
+
   Lead copyWith({
     String? id,
     String? companyName,
     String? websiteUrl,
+    bool clearWebsiteUrl = false,
+    bool? hasLiveWebsite,
+    String? primaryActionUrl,
+    bool clearPrimaryActionUrl = false,
     String? country,
     String? corridor,
     String? sector,
@@ -68,7 +93,9 @@ class Lead {
     return Lead(
       id: id ?? this.id,
       companyName: companyName ?? this.companyName,
-      websiteUrl: websiteUrl ?? this.websiteUrl,
+      websiteUrl: clearWebsiteUrl ? null : (websiteUrl ?? this.websiteUrl),
+      hasLiveWebsite: hasLiveWebsite ?? this.hasLiveWebsite,
+      primaryActionUrl: clearPrimaryActionUrl ? null : (primaryActionUrl ?? this.primaryActionUrl),
       country: country ?? this.country,
       corridor: corridor ?? this.corridor,
       sector: sector ?? this.sector,
@@ -93,6 +120,8 @@ class Lead {
       'id': id,
       'company_name': companyName,
       'website_url': websiteUrl,
+      'has_live_website': hasLiveWebsite,
+      'primary_action_url': primaryActionUrl ?? effectiveActionUrl,
       'country': country,
       'corridor': corridor,
       'sector': sector,
@@ -113,10 +142,18 @@ class Lead {
   }
 
   factory Lead.fromJson(Map<String, dynamic> json) {
+    final rawWebsite = json['website_url'] as String?;
+    final bool hasLive = json['has_live_website'] as bool? ??
+        (rawWebsite != null && rawWebsite.trim().isNotEmpty && rawWebsite != 'null');
+
     return Lead(
       id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
       companyName: json['company_name'] as String? ?? 'Enterprise Client',
-      websiteUrl: json['website_url'] as String? ?? 'https://example.com',
+      websiteUrl: (rawWebsite != null && rawWebsite.trim().isNotEmpty && rawWebsite != 'null')
+          ? rawWebsite.trim()
+          : null,
+      hasLiveWebsite: hasLive,
+      primaryActionUrl: json['primary_action_url'] as String?,
       country: json['country'] as String? ?? 'Saudi Arabia (KSA)',
       corridor: json['corridor'] as String? ?? 'KAFD Phase 1 & 2',
       sector: json['sector'] as String? ?? 'Newly Formed Corporate Firms',
@@ -152,10 +189,14 @@ class LeadAdapter extends TypeAdapter<Lead> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+    final rawWebsite = fields[2] as String?;
+    final hasLive = fields[19] as bool? ??
+        (rawWebsite != null && rawWebsite.trim().isNotEmpty);
+
     return Lead(
       id: fields[0] as String,
       companyName: fields[1] as String,
-      websiteUrl: fields[2] as String,
+      websiteUrl: rawWebsite,
       country: fields[3] as String,
       corridor: fields[4] as String,
       sector: fields[5] as String,
@@ -172,12 +213,14 @@ class LeadAdapter extends TypeAdapter<Lead> {
       createdAt: fields[16] != null ? DateTime.parse(fields[16] as String) : DateTime.now(),
       notes: fields[17] as String? ?? '',
       aiAnalysisJson: fields[18] as String?,
+      hasLiveWebsite: hasLive,
+      primaryActionUrl: fields[20] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Lead obj) {
-    writer.writeByte(19);
+    writer.writeByte(21);
     writer.writeByte(0);
     writer.write(obj.id);
     writer.writeByte(1);
@@ -216,5 +259,9 @@ class LeadAdapter extends TypeAdapter<Lead> {
     writer.write(obj.notes);
     writer.writeByte(18);
     writer.write(obj.aiAnalysisJson);
+    writer.writeByte(19);
+    writer.write(obj.hasLiveWebsite);
+    writer.writeByte(20);
+    writer.write(obj.primaryActionUrl);
   }
 }

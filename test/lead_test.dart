@@ -116,5 +116,59 @@ void main() {
       expect(cleaned.startsWith('{'), true);
       expect(cleaned.endsWith('}'), true);
     });
+
+    test('Lead handles verified live website and effective action URL correctly', () {
+      final liveLead = Lead(
+        id: 'test_live',
+        companyName: 'Apex Falcon Real Estate',
+        websiteUrl: 'https://apexfalcon.ae',
+        hasLiveWebsite: true,
+        primaryActionUrl: 'https://apexfalcon.ae',
+        country: 'United Arab Emirates (UAE)',
+        corridor: 'DIFC Financial Centre (Dubai)',
+        sector: 'Luxury Real Estate Agencies',
+        marketingGap: '🔥 Missing Meta/GTM Pixel',
+        phone: '+971509823412',
+        email: 'director@apexfalcon.ae',
+        createdAt: DateTime.now(),
+      );
+
+      expect(liveLead.hasLiveWebsite, true);
+      expect(liveLead.websiteUrl, 'https://apexfalcon.ae');
+      expect(liveLead.effectiveActionUrl, 'https://apexfalcon.ae');
+    });
+
+    test('Lead handles dead/null website with verified Google Maps fallback', () {
+      final deadLead = Lead(
+        id: 'test_dead',
+        companyName: 'Bahrain Bay Maritime Finance',
+        websiteUrl: null,
+        hasLiveWebsite: false,
+        primaryActionUrl: 'https://www.google.com/maps/search/?api=1&query=Bahrain%20Bay%20Maritime%20Finance%20Bahrain%20Financial%20Harbour%20Bahrain',
+        country: 'Bahrain',
+        corridor: 'Bahrain Financial Harbour',
+        sector: 'Newly Formed Corporate Firms',
+        marketingGap: '📱 Inactive Social Media Presence',
+        phone: '+97339120485',
+        email: 'info@bbmaritime.bh',
+        createdAt: DateTime.now(),
+      );
+
+      expect(deadLead.hasLiveWebsite, false);
+      expect(deadLead.websiteUrl, isNull);
+      expect(deadLead.effectiveActionUrl.startsWith('https://www.google.com/maps/search/'), true);
+      expect(deadLead.fallbackMapsUrl.contains('Bahrain%20Bay%20Maritime%20Finance'), true);
+
+      // Verify JSON round-trip
+      final json = deadLead.toJson();
+      expect(json['has_live_website'], false);
+      expect(json['website_url'], isNull);
+      expect(json['primary_action_url'], deadLead.primaryActionUrl);
+
+      final fromJson = Lead.fromJson(json);
+      expect(fromJson.hasLiveWebsite, false);
+      expect(fromJson.websiteUrl, isNull);
+      expect(fromJson.effectiveActionUrl, deadLead.primaryActionUrl);
+    });
   });
 }
