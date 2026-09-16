@@ -1,0 +1,11 @@
+{
+  "name": "DM Client Hunter MENA - Executive Obsidian CRM",
+  "short_name": "DM Hunter",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#06090E",
+  "theme_color": "#00F2FE",
+  "description": "Executive Obsidian CRM & Outbound Acquisition Engine for Digital Marketing Agencies across MENA.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}

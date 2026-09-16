@@ -1,0 +1,30 @@
+name: dm_client_hunting
+description: "Executive Obsidian CRM & Outbound Acquisition Engine for Digital Marketing Agencies across MENA."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  http: ^1.2.2
+  url_launcher: ^6.3.0
+  flutter_animate: ^4.5.0
+  cupertino_icons: ^1.0.8
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/leads_feed.json
