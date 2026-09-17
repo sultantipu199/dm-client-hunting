@@ -54,7 +54,7 @@ def upload_to_tag(tag, apk_path, token, repo, title, body_text):
     upload_url = release_data.get("upload_url", "").split("{")[0]
     asset_name = "app-release.apk"
     for asset in release_data.get("assets", []):
-        if asset.get("name") in (asset_name, f"DM_Client_Hunter_{tag}.apk", "DM_Client_Hunter_Release_v1.0.1.apk", "DM_Client_Hunter_Release_v1.0.2.apk", "DM_Client_Hunter_Release_v1.0.3.apk"):
+        if asset.get("name") in (asset_name, f"DM_Client_Hunter_{tag}.apk", "DM_Client_Hunter_Release_v1.0.1.apk", "DM_Client_Hunter_Release_v1.0.2.apk", "DM_Client_Hunter_Release_v1.0.3.apk", "DM_Client_Hunter_Release_v1.0.4.apk"):
             del_url = asset.get("url")
             print(f"Deleting existing asset {asset.get('name')} from {tag}...")
             requests.delete(del_url, headers=headers)
@@ -107,17 +107,16 @@ def main():
         sys.exit(1)
 
     body = (
-        "### DM Client Hunter MENA v1.0.3\n\n"
-        "- **In-App Manual Scraper Engine**: Dedicated on-demand scraper button in the APK enabling instantaneous high-ticket lead mining across MENA commercial corridors anytime.\n"
-        "- **Interactive Scraper Sheet**: Customizable market hub selection (Saudi Arabia, UAE, Qatar, Kuwait, Bahrain, Oman, Egypt), sector focus, and batch sizes (5, 10, 20).\n"
-        "- **Dual Scraping Modes**: Deep Corridor Crawler mode and Live Cloud Feed Sync mode.\n"
-        "- **Autonomous Validation & Hardening**: Strict MENA phone validation, corporate domain checks, duplicate filtering, and blacklist guard protection.\n"
-        "- **Hive Database Instant Persistence**: Scraped leads are stored immediately in encrypted local Hive storage with real-time UI radar updates.\n"
-        "- **RFC 6068 Dual-Channel Compliance**: Zero `+` signs in WhatsApp and email dispatches.\n\n"
+        "### DM Client Hunter MENA v1.0.4\n\n"
+        "- **Manual Lead Entry & Listing Engine**: Added prominent `[ + ADD LEAD ]` Floating Action Button and AppBar action to manually create, profile, and list custom corporate prospects.\n"
+        "- **Comprehensive Enterprise Profiling**: Full support for company name, website with live detection, country/corridor selection, industry sector, marketing bottleneck, phone format validation, email, contact role, remote readiness toggle, and acquisition notes.\n"
+        "- **Instant Radar Injection**: Manually created leads persist immediately to local encrypted Hive storage and display at the top of the 'New Leads' feed with haptic feedback.\n"
+        "- **In-App Manual Scraper Engine**: Dedicated on-demand scraper button (`[ ⚡ SCRAPER ]`) to mine MENA corporate corridors anytime.\n"
+        "- **RFC 6068 Dual-Channel Compliance**: Zero `+` signs across native email and WhatsApp dispatches.\n\n"
         "**Direct Download**: Download `app-release.apk` below."
     )
 
-    tags = ["v1.0.3", "v1.0.2"]
+    tags = ["v1.0.4", "v1.0.3", "v1.0.2"]
     for tag in tags:
         upload_to_tag(
             tag=tag,

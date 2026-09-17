@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers/leads_provider.dart';
 import 'services/storage_service.dart';
 import 'theme/app_theme.dart';
+import 'widgets/add_lead_sheet.dart';
 import 'widgets/blacklist_dialog.dart';
 import 'widgets/filter_bar.dart';
 import 'widgets/glass_container.dart';
@@ -94,6 +95,15 @@ class _ExecutiveDashboardScreenState
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => const ManualScraperSheet(),
+    );
+  }
+
+  void _showAddLeadModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => const AddLeadSheet(),
     );
   }
 
@@ -299,6 +309,14 @@ class _ExecutiveDashboardScreenState
             ),
           ),
           IconButton(
+            tooltip: 'Manual Lead Entry',
+            icon: const Icon(Icons.person_add_alt_1_rounded, color: AppTheme.electricCyan),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showAddLeadModal();
+            },
+          ),
+          IconButton(
             tooltip: 'Blacklist Guard',
             icon: const Icon(Icons.shield_outlined, color: AppTheme.subduedSilver),
             onPressed: () {
@@ -397,6 +415,26 @@ class _ExecutiveDashboardScreenState
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        tooltip: 'Manually List a New Lead',
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          _showAddLeadModal();
+        },
+        backgroundColor: AppTheme.electricCyan,
+        foregroundColor: AppTheme.obsidianNavy,
+        elevation: 4,
+        icon: const Icon(Icons.add_business_rounded, size: 18),
+        label: const Text(
+          'ADD LEAD',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.5,
+            color: AppTheme.obsidianNavy,
+          ),
+        ),
+      ),
     );
   }
 
@@ -440,16 +478,35 @@ class _ExecutiveDashboardScreenState
               ),
             ),
             const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () {
-                ref.read(filterProvider.notifier).state = const LeadsFilterState();
-              },
-              icon: const Icon(Icons.restart_alt_rounded, size: 16),
-              label: const Text('Reset All Filters', style: TextStyle(fontSize: 12)),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.electricCyan,
-                side: const BorderSide(color: AppTheme.electricCyan),
-              ),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              alignment: WrapAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () {
+                    ref.read(filterProvider.notifier).state = const LeadsFilterState();
+                  },
+                  icon: const Icon(Icons.restart_alt_rounded, size: 16),
+                  label: const Text('Reset All Filters', style: TextStyle(fontSize: 12)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.subduedSilver,
+                    side: const BorderSide(color: AppTheme.borderNeonSubtle),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    _showAddLeadModal();
+                  },
+                  icon: const Icon(Icons.add_business_rounded, size: 16),
+                  label: const Text('Add Lead Manually', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.electricCyan,
+                    foregroundColor: AppTheme.obsidianNavy,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
