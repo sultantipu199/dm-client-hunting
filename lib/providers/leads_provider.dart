@@ -123,6 +123,20 @@ class LeadsNotifier extends Notifier<List<Lead>> {
     await StorageService.leadsBox.put(lead.id, lead);
     state = [lead, ...state];
   }
+
+  /// Adds a batch of newly scraped leads, persisting to Hive immediately
+  Future<void> addLeadsBatch(List<Lead> newLeads) async {
+    final toAdd = <String, Lead>{};
+    for (final lead in newLeads) {
+      if (!StorageService.isPhoneBlacklisted(lead.phone)) {
+        toAdd[lead.id] = lead;
+      }
+    }
+    if (toAdd.isNotEmpty) {
+      await StorageService.leadsBox.putAll(toAdd);
+      state = [...toAdd.values, ...state];
+    }
+  }
 }
 
 final leadsProvider = NotifierProvider<LeadsNotifier, List<Lead>>(() {

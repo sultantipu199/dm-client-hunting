@@ -7,6 +7,7 @@ import 'theme/app_theme.dart';
 import 'widgets/blacklist_dialog.dart';
 import 'widgets/filter_bar.dart';
 import 'widgets/glass_container.dart';
+import 'widgets/manual_scraper_sheet.dart';
 import 'widgets/modern_lead_card.dart';
 import 'widgets/quick_stats_bar.dart';
 
@@ -85,6 +86,15 @@ class _ExecutiveDashboardScreenState
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _showScraperModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => const ManualScraperSheet(),
+    );
   }
 
   void _showSettingsModal() {
@@ -251,6 +261,43 @@ class _ExecutiveDashboardScreenState
           ],
         ),
         actions: [
+          // Manual Scraper Trigger Button
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+            child: Tooltip(
+              message: 'Launch Manual Lead Scraper',
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  _showScraperModal();
+                },
+                icon: const Icon(
+                  Icons.travel_explore_rounded,
+                  size: 15,
+                  color: AppTheme.obsidianNavy,
+                ),
+                label: const Text(
+                  'SCRAPER',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    color: AppTheme.obsidianNavy,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.electricCyan,
+                  foregroundColor: AppTheme.obsidianNavy,
+                  elevation: 3,
+                  shadowColor: AppTheme.electricCyan.withOpacity(0.5),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ),
           IconButton(
             tooltip: 'Blacklist Guard',
             icon: const Icon(Icons.shield_outlined, color: AppTheme.subduedSilver),
