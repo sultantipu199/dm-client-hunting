@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dm_client_hunting/models/lead.dart';
 import 'package:dm_client_hunting/services/dispatch_service.dart';
 import 'package:dm_client_hunting/services/gemini_service.dart';
+import 'package:dm_client_hunting/services/storage_service.dart';
 
 void main() {
   group('Lead & Acquisition Engine Tests', () {
@@ -209,5 +210,50 @@ void main() {
       expect(kuwaitLead.hasLiveWebsite, false);
       expect(kuwaitLead.effectiveActionUrl.contains('maps/search'), true);
     });
+
+    test('Lead model serializes and deserializes place_id, address, and google_maps_url correctly', () {
+      const placeId = 'ChIJQ6AZBoXjLj4R2ZqOmz2WPMg';
+      const mapsUrl = 'https://maps.google.com/?q=place_id:$placeId';
+      const address = 'العليا، الرياض 13321';
+
+      final genuineLead = Lead(
+        id: 'riyadh_lead_01',
+        companyName: 'برج المغيب المكتبي',
+        placeId: placeId,
+        address: address,
+        googleMapsUrl: mapsUrl,
+        country: 'Saudi Arabia (KSA)',
+        corridor: 'Al Olaya Commercial District',
+        sector: 'Newly Formed Corporate Firms',
+        marketingGap: '⚡ Low Google Visibility / No Search Ads',
+        phone: '+966531000216',
+        email: 'info@almugheb.sa',
+        createdAt: DateTime.now(),
+      );
+
+      final json = genuineLead.toJson();
+      expect(json['place_id'], placeId);
+      expect(json['address'], address);
+      expect(json['google_maps_url'], mapsUrl);
+
+      final reconstituted = Lead.fromJson(json);
+      expect(reconstituted.placeId, placeId);
+      expect(reconstituted.address, address);
+      expect(reconstituted.googleMapsUrl, mapsUrl);
+      expect(reconstituted.effectiveActionUrl, mapsUrl);
+    });
+
+    test('StorageService SHA-256 composite hash matches Python deduplication key', () {
+      const phone = '0531000216';
+      const placeId = 'ChIJQ6AZBoXjLj4R2ZqOmz2WPMg';
+
+      final normalizedPhone = StorageService.normalizePhone(phone);
+      expect(normalizedPhone, '+966531000216');
+
+      final hash = StorageService.computeLeadHash(phone, placeId);
+      // Validated against Python hashlib.sha256("+966531000216_ChIJQ6AZBoXjLj4R2ZqOmz2WPMg")
+      expect(hash, '9eb08f6fefbe74e87dfa9fb72bd849460099d9442acdc62c3ba3658b89466909');
+    });
   });
 }
+

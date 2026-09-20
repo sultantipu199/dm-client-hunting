@@ -6,15 +6,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('LeadScraperService Unit Tests', () {
-    test('MENA corridors configuration covers target GCC hubs', () {
+    test('MENA corridors configuration covers required Riyadh business corridors', () {
       expect(LeadScraperService.corridors.containsKey('Saudi Arabia (KSA)'), true);
-      expect(LeadScraperService.corridors.containsKey('United Arab Emirates (UAE)'), true);
-      expect(LeadScraperService.corridors.containsKey('Qatar'), true);
-      expect(LeadScraperService.corridors.containsKey('Kuwait'), true);
-
       final ksaCorridors = LeadScraperService.corridors['Saudi Arabia (KSA)']!;
       expect(ksaCorridors.contains('KAFD Phase 1 & 2'), true);
       expect(ksaCorridors.contains('Al Narjis Commercial Corridor'), true);
+      expect(ksaCorridors.contains('Roshn Front Business Zone'), true);
+      expect(ksaCorridors.contains('King Salman Road Business Strip'), true);
     });
 
     test('Marketing gaps have details and actionable problem descriptions', () {
@@ -26,49 +24,41 @@ void main() {
       }
     });
 
-    test('Phone prefixes match respective MENA country formats', () {
-      expect(LeadScraperService.phonePrefixes['Saudi Arabia (KSA)'], '+9665');
-      expect(LeadScraperService.phonePrefixes['United Arab Emirates (UAE)'], '+9715');
-      expect(LeadScraperService.phonePrefixes['Qatar'], '+974');
-      expect(LeadScraperService.phonePrefixes['Kuwait'], '+965');
-      expect(LeadScraperService.phonePrefixes['Egypt'], '+201');
+    test('Saudi Mobile validation strictly validates +9665xxxxxxxx and rejects landlines/unified lines', () {
+      // Valid Saudi Mobile Formats
+      expect(LeadScraperService.isValidSaudiMobile('+966581297003'), true);
+      expect(LeadScraperService.isValidSaudiMobile('0556550847'), true);
+      expect(LeadScraperService.isValidSaudiMobile('508613874'), true);
+      expect(LeadScraperService.isValidSaudiMobile('00966560809779'), true);
+      expect(LeadScraperService.isValidSaudiMobile('+966 53 100 0216'), true);
+
+      // Discard Landlines (011 / Riyadh landline)
+      expect(LeadScraperService.isValidSaudiMobile('0112738000'), false);
+      expect(LeadScraperService.isValidSaudiMobile('+966112738000'), false);
+
+      // Discard Unified lines (9200) and Toll-Free (800)
+      expect(LeadScraperService.isValidSaudiMobile('920012372'), false);
+      expect(LeadScraperService.isValidSaudiMobile('+966920012372'), false);
+      expect(LeadScraperService.isValidSaudiMobile('8001234567'), false);
+
+      // Discard Malformed / Foreign numbers
+      expect(LeadScraperService.isValidSaudiMobile('+971501234567'), false);
+      expect(LeadScraperService.isValidSaudiMobile('051234'), false);
+      expect(LeadScraperService.isValidSaudiMobile('051234567890'), false);
+      expect(LeadScraperService.isValidSaudiMobile(''), false);
     });
 
-    test('Manual scrape generates requested number of valid leads', () async {
+    test('Zero Data over Fake Data guardrail: Never synthesizes fake leads on non-matching query', () async {
       final report = await LeadScraperService.runManualScrape(
-        targetCountry: 'Saudi Arabia (KSA)',
-        targetSector: 'All High-Ticket Sectors',
+        targetCountry: 'NonExistentHub',
+        targetSector: 'NonExistentSector',
         targetCount: 5,
         mode: 'Deep Corridor Crawler',
       );
 
-      expect(report.newLeads.length, 5);
+      // Strictly 0 leads generated, no fallback strings, no Faker names
+      expect(report.newLeads.length, 0);
       expect(report.sourceMode, 'Deep Corridor Crawler');
-
-      for (final Lead lead in report.newLeads) {
-        expect(lead.country, 'Saudi Arabia (KSA)');
-        expect(lead.phone.startsWith('+9665'), true);
-        expect(lead.email.contains('@'), true);
-        expect(lead.status, 'new');
-        expect(lead.agreesToRemoteWork, true);
-        expect(lead.effectiveActionUrl.isNotEmpty, true);
-      }
-    });
-
-    test('UAE Deep Crawler generates valid Dubai/Abu Dhabi leads', () async {
-      final report = await LeadScraperService.runManualScrape(
-        targetCountry: 'United Arab Emirates (UAE)',
-        targetSector: 'Private Healthcare & Aesthetic Clinics',
-        targetCount: 3,
-        mode: 'Deep Corridor Crawler',
-      );
-
-      expect(report.newLeads.length, 3);
-      for (final Lead lead in report.newLeads) {
-        expect(lead.country, 'United Arab Emirates (UAE)');
-        expect(lead.phone.startsWith('+9715'), true);
-        expect(lead.marketingGap.isNotEmpty, true);
-      }
     });
   });
 }

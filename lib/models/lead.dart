@@ -7,6 +7,9 @@ class Lead {
   final String? websiteUrl;
   final bool hasLiveWebsite;
   final String? primaryActionUrl;
+  final String? placeId;
+  final String? address;
+  final String? googleMapsUrl;
   final String country;
   final String corridor;
   final String sector;
@@ -30,6 +33,9 @@ class Lead {
     this.websiteUrl,
     this.hasLiveWebsite = false,
     this.primaryActionUrl,
+    this.placeId,
+    this.address,
+    this.googleMapsUrl,
     required this.country,
     required this.corridor,
     required this.sector,
@@ -48,10 +54,13 @@ class Lead {
     this.aiAnalysisJson,
   });
 
-  /// Effective action URL: Verified live corporate site or fallback Google Maps directory query
+  /// Effective action URL: Verified live corporate site, authentic Google Maps link, or fallback directory query
   String get effectiveActionUrl {
     if (hasLiveWebsite && websiteUrl != null && websiteUrl!.trim().isNotEmpty) {
       return websiteUrl!.trim();
+    }
+    if (googleMapsUrl != null && googleMapsUrl!.trim().isNotEmpty) {
+      return googleMapsUrl!.trim();
     }
     if (primaryActionUrl != null && primaryActionUrl!.trim().isNotEmpty) {
       return primaryActionUrl!.trim();
@@ -61,6 +70,9 @@ class Lead {
 
   /// Authoritative Google Maps search link fallback
   String get fallbackMapsUrl {
+    if (placeId != null && placeId!.trim().isNotEmpty) {
+      return 'https://maps.google.com/?q=place_id:${placeId!.trim()}';
+    }
     final query = '$companyName $corridor $country'.trim();
     return 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(query)}';
   }
@@ -73,6 +85,9 @@ class Lead {
     bool? hasLiveWebsite,
     String? primaryActionUrl,
     bool clearPrimaryActionUrl = false,
+    String? placeId,
+    String? address,
+    String? googleMapsUrl,
     String? country,
     String? corridor,
     String? sector,
@@ -96,6 +111,9 @@ class Lead {
       websiteUrl: clearWebsiteUrl ? null : (websiteUrl ?? this.websiteUrl),
       hasLiveWebsite: hasLiveWebsite ?? this.hasLiveWebsite,
       primaryActionUrl: clearPrimaryActionUrl ? null : (primaryActionUrl ?? this.primaryActionUrl),
+      placeId: placeId ?? this.placeId,
+      address: address ?? this.address,
+      googleMapsUrl: googleMapsUrl ?? this.googleMapsUrl,
       country: country ?? this.country,
       corridor: corridor ?? this.corridor,
       sector: sector ?? this.sector,
@@ -122,6 +140,9 @@ class Lead {
       'website_url': websiteUrl,
       'has_live_website': hasLiveWebsite,
       'primary_action_url': primaryActionUrl ?? effectiveActionUrl,
+      'place_id': placeId,
+      'address': address,
+      'google_maps_url': googleMapsUrl ?? (placeId != null ? 'https://maps.google.com/?q=place_id:$placeId' : effectiveActionUrl),
       'country': country,
       'corridor': corridor,
       'sector': sector,
@@ -145,6 +166,11 @@ class Lead {
     final rawWebsite = json['website_url'] as String?;
     final bool hasLive = json['has_live_website'] as bool? ??
         (rawWebsite != null && rawWebsite.trim().isNotEmpty && rawWebsite != 'null');
+    final rawPlaceId = json['place_id'] as String?;
+    final rawMapsUrl = json['google_maps_url'] as String? ??
+        (rawPlaceId != null && rawPlaceId.trim().isNotEmpty
+            ? 'https://maps.google.com/?q=place_id:${rawPlaceId.trim()}'
+            : null);
 
     return Lead(
       id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -154,6 +180,9 @@ class Lead {
           : null,
       hasLiveWebsite: hasLive,
       primaryActionUrl: json['primary_action_url'] as String?,
+      placeId: rawPlaceId,
+      address: json['address'] as String?,
+      googleMapsUrl: rawMapsUrl,
       country: json['country'] as String? ?? 'Saudi Arabia (KSA)',
       corridor: json['corridor'] as String? ?? 'KAFD Phase 1 & 2',
       sector: json['sector'] as String? ?? 'Newly Formed Corporate Firms',
@@ -215,12 +244,15 @@ class LeadAdapter extends TypeAdapter<Lead> {
       aiAnalysisJson: fields[18] as String?,
       hasLiveWebsite: hasLive,
       primaryActionUrl: fields[20] as String?,
+      placeId: fields[21] as String?,
+      address: fields[22] as String?,
+      googleMapsUrl: fields[23] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Lead obj) {
-    writer.writeByte(21);
+    writer.writeByte(24);
     writer.writeByte(0);
     writer.write(obj.id);
     writer.writeByte(1);
@@ -263,5 +295,12 @@ class LeadAdapter extends TypeAdapter<Lead> {
     writer.write(obj.hasLiveWebsite);
     writer.writeByte(20);
     writer.write(obj.primaryActionUrl);
+    writer.writeByte(21);
+    writer.write(obj.placeId);
+    writer.writeByte(22);
+    writer.write(obj.address);
+    writer.writeByte(23);
+    writer.write(obj.googleMapsUrl);
   }
 }
+

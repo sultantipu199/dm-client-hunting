@@ -125,6 +125,16 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
     }
   }
 
+  /// Opens the genuine verified Google Maps business pin
+  Future<void> _openGoogleMapsPin() async {
+    HapticFeedback.selectionClick();
+    final mapsUrl = widget.lead.googleMapsUrl ??
+        (widget.lead.placeId != null && widget.lead.placeId!.trim().isNotEmpty
+            ? 'https://maps.google.com/?q=place_id:${widget.lead.placeId!.trim()}'
+            : widget.lead.fallbackMapsUrl);
+    await DispatchService.launchWebsitePreview(mapsUrl);
+  }
+
   /// Handles 1-tap Send Apology & Archive for Wrong Contacts
   Future<void> _sendApologyAndArchive() async {
     HapticFeedback.mediumImpact();
@@ -190,15 +200,19 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                           Tooltip(
                             message: widget.lead.hasLiveWebsite
                                 ? 'Visit Corporate Website'
-                                : 'Search Location on Google Maps',
+                                : 'Open Verified Pin on Google Maps',
                             child: GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () {
-                                HapticFeedback.selectionClick();
-                                DispatchService.launchCompanyAction(
-                                  context: context,
-                                  lead: widget.lead,
-                                );
+                                if (widget.lead.hasLiveWebsite) {
+                                  HapticFeedback.selectionClick();
+                                  DispatchService.launchCompanyAction(
+                                    context: context,
+                                    lead: widget.lead,
+                                  );
+                                } else {
+                                  _openGoogleMapsPin();
+                                }
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
@@ -252,6 +266,26 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                           color: AppTheme.subduedSilver,
                         ),
                       ),
+                      if (widget.lead.address != null && widget.lead.address!.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Row(
+                          children: [
+                            const Icon(Icons.place_outlined, size: 12, color: AppTheme.amberGold),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                widget.lead.address!,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppTheme.subduedSilver,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -360,9 +394,35 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
               ],
             ),
 
+            // 3. Dedicated Functional "Open in Google Maps" Button
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 10),
+              child: OutlinedButton.icon(
+                onPressed: _openGoogleMapsPin,
+                icon: const Icon(Icons.map_rounded, size: 15, color: AppTheme.electricCyan),
+                label: const Text(
+                  'Open in Google Maps',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.electricCyan,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  side: BorderSide(color: AppTheme.electricCyan.withOpacity(0.35)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 14),
             const Divider(color: AppTheme.borderNeonSubtle, height: 1),
             const SizedBox(height: 12),
+
 
             // AI Strategic Growth Analyst & Client Reply Auto-Input
             _buildAiSection(),
