@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dm_client_hunting/services/lead_scraper_service.dart';
-import 'package:dm_client_hunting/models/lead.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
