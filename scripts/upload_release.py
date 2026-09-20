@@ -54,7 +54,7 @@ def upload_to_tag(tag, apk_path, token, repo, title, body_text):
     upload_url = release_data.get("upload_url", "").split("{")[0]
     asset_name = "app-release.apk"
     for asset in release_data.get("assets", []):
-        if asset.get("name") in (asset_name, f"DM_Client_Hunter_{tag}.apk", "DM_Client_Hunter_Release_v1.0.1.apk", "DM_Client_Hunter_Release_v1.0.2.apk", "DM_Client_Hunter_Release_v1.0.3.apk", "DM_Client_Hunter_Release_v1.0.4.apk"):
+        if asset.get("name") in (asset_name, f"DM_Client_Hunter_{tag}.apk", "DM_Client_Hunter_Release_v1.0.1.apk", "DM_Client_Hunter_Release_v1.0.2.apk", "DM_Client_Hunter_Release_v1.0.3.apk", "DM_Client_Hunter_Release_v1.0.4.apk", "DM_Client_Hunter_Release_v1.0.5.apk"):
             del_url = asset.get("url")
             print(f"Deleting existing asset {asset.get('name')} from {tag}...")
             requests.delete(del_url, headers=headers)
@@ -107,16 +107,17 @@ def main():
         sys.exit(1)
 
     body = (
-        "### DM Client Hunter MENA v1.0.4\n\n"
-        "- **Manual Lead Entry & Listing Engine**: Added prominent `[ + ADD LEAD ]` Floating Action Button and AppBar action to manually create, profile, and list custom corporate prospects.\n"
-        "- **Comprehensive Enterprise Profiling**: Full support for company name, website with live detection, country/corridor selection, industry sector, marketing bottleneck, phone format validation, email, contact role, remote readiness toggle, and acquisition notes.\n"
-        "- **Instant Radar Injection**: Manually created leads persist immediately to local encrypted Hive storage and display at the top of the 'New Leads' feed with haptic feedback.\n"
-        "- **In-App Manual Scraper Engine**: Dedicated on-demand scraper button (`[ ⚡ SCRAPER ]`) to mine MENA corporate corridors anytime.\n"
-        "- **RFC 6068 Dual-Channel Compliance**: Zero `+` signs across native email and WhatsApp dispatches.\n\n"
+        "### DM Client Hunter MENA v1.0.5 (Production Release)\n\n"
+        "- **Authentic Google Places Live Extraction**: Purged 100% of synthetic/mock lead generation. Mines authentic corporate profiles directly across Riyadh business corridors (KAFD, Al Olaya, Al Narjis, Roshn Front, King Salman Rd).\n"
+        "- **Strict Saudi Mobile Filtering**: Enforces valid mobile numbers (`+9665xxxxxxxx`) and discards landlines (011), unified numbers (9200/800), and unverified lines.\n"
+        "- **Persistent SHA-256 Deduplication Barrier**: Eliminates duplicates across daily runs via persistent registry (`data/lead_registry.json` and Hive `processed_leads` box) using `SHA256(phone + '_' + place_id)`.\n"
+        "- **Zero Data over Fake Data Guardrail**: Absolute guarantee that no synthetic leads, faker data, or seed banks are ever shown if a query has zero matching results.\n"
+        "- **Google Maps Direct Navigation**: Every lead card displays verified Google Place IDs, real Riyadh street addresses, and an interactive **'Open in Google Maps'** button.\n"
+        "- **State & Interaction Preservation**: Background synchronization preserves all user interactions (`status`, `contactedAt`, `notes`, `aiAnalysisJson`).\n\n"
         "**Direct Download**: Download `app-release.apk` below."
     )
 
-    tags = ["v1.0.4", "v1.0.3", "v1.0.2"]
+    tags = ["v1.0.5", "v1.0.4"]
     for tag in tags:
         upload_to_tag(
             tag=tag,
