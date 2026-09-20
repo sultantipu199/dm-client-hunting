@@ -48,10 +48,20 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            keyAlias 'upload'
+            keyPassword 'antigravity123'
+            storeFile file('upload-keystore.jks')
+            storePassword 'antigravity123'
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
     buildTypes {
         release {
-            // Signing with the debug keys for the sample so it can be verified & built out-of-the-box
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
         }

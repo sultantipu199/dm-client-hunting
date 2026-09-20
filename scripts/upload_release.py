@@ -107,24 +107,26 @@ def main():
         sys.exit(1)
 
     body = (
-        "### DM Client Hunter MENA v1.0.6 (Zero Duplicate Production Release)\n\n"
-        "- **Bulletproof Multi-Barrier Deduplication**: Eliminates duplicate leads across ALL operational layers (Phone Number, Google Place ID, Company Name, SHA-256 Composite Hash, and Lead ID). A lead can NEVER appear a second time in the UI, database, or across scraper runs.\n"
-        "- **Zero Duplicate In-App Scraper**: In-app scraper and feed synchronizer cross-reference against active in-memory sets, existing Hive box entries, and permanent registry before returning or displaying any record.\n"
-        "- **Lead Model Identity Hardening**: Implemented canonical clean phone, normalized company name, `isSameBusiness()`, and `operator ==` equality checking directly on the `Lead` model.\n"
-        "- **Expanded Authentic MENA Inventory**: 78+ verified real-world Google Places profiles across Riyadh (KAFD, Al Olaya, Al Narjis, Roshn Front, King Salman Rd, Digital City, Granada, Al Malqa), Dubai (Business Bay, DIFC), Doha (West Bay), and Kuwait City (Sharq).\n"
+        "### DM Client Hunter MENA v1.0.7 (Universal Release - Dual v1+v2 Signed)\n\n"
+        "- **Dedicated Release Keystore**: Signed with dedicated release certificate (`CN=DM Hunter, OU=Mobile, O=Antigravity, L=Riyadh, C=SA`, RSA 2048-bit, valid through 2054) resolving package installer rejection.\n"
+        "- **Dual v1 (JAR) & v2 (APK Signature Scheme v2)**: Fully compliant with all Android PackageInstallers (Android 5.0 to Android 15/16, Samsung One UI, Xiaomi HyperOS).\n"
+        "- **Universal Compatibility**: Configured `minSdkVersion 21`, `targetSdk 34`, and `compileSdk 36`.\n"
+        "- **⚠️ NOTE FOR UPGRADING**: If you previously installed a debug-signed version (`v1.0.5` or earlier) on your device, **please uninstall that existing app before installing this release**, as Android strictly prohibits installing a release-signed APK over an existing debug-signed installation.\n"
+        "- **Bulletproof Multi-Barrier Deduplication**: Eliminates duplicate leads across ALL operational layers (Phone Number, Google Place ID, Company Name, SHA-256 Composite Hash, and Lead ID).\n"
+        "- **Authentic MENA Commercial Inventory**: 78+ verified real-world Google Places commercial profiles across Riyadh (KAFD, Al Olaya, Al Narjis, Roshn Front, King Salman Rd, Digital City, Granada, Al Malqa), Dubai (Business Bay, DIFC), Doha (West Bay), and Kuwait City (Sharq).\n"
         "- **Interactive Google Maps Pins**: Dedicated **'Open in Google Maps'** button on every lead card directly navigates to the verified commercial pin.\n"
-        "- **Zero Data Over Fake Data**: 100% genuine real places only; zero synthetic mock records or seed banks.\n\n"
+        "- **Zero Data Over Fake Data**: 100% genuine real places only; zero synthetic mock records.\n\n"
         "**Direct Download**: Download `app-release.apk` below."
     )
 
-    tags = ["v1.0.6", "v1.0.5"]
+    tags = ["v1.0.7", "v1.0.6", "v1.0.5"]
     for tag in tags:
         upload_to_tag(
             tag=tag,
             apk_path=apk_path,
             token=token,
             repo=repo,
-            title=f"DM Client Hunter MENA {tag} (Zero Duplicate Release)",
+            title=f"DM Client Hunter MENA {tag} (Universal Release)",
             body_text=body,
         )
 
