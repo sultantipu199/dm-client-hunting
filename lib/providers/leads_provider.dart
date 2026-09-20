@@ -63,10 +63,30 @@ class LeadsNotifier extends Notifier<List<Lead>> {
   List<Lead> _loadAllFromHive() {
     try {
       final box = StorageService.leadsBox;
-      final leads = box.values.toList();
+      final rawLeads = box.values.toList();
       // Sort newest first
-      leads.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return leads;
+      rawLeads.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      final uniqueLeads = <Lead>[];
+      final seenPhones = <String>{};
+      final seenPlaceIds = <String>{};
+      final seenCompanyNames = <String>{};
+      final seenIds = <String>{};
+
+      for (final lead in rawLeads) {
+        if (seenIds.contains(lead.id)) continue;
+        if (lead.normalizedPhone.isNotEmpty && seenPhones.contains(lead.normalizedPhone)) continue;
+        if (lead.placeId != null && lead.placeId!.trim().isNotEmpty && seenPlaceIds.contains(lead.placeId!.trim())) continue;
+        if (lead.normalizedCompanyName.isNotEmpty && seenCompanyNames.contains(lead.normalizedCompanyName)) continue;
+
+        seenIds.add(lead.id);
+        if (lead.normalizedPhone.isNotEmpty) seenPhones.add(lead.normalizedPhone);
+        if (lead.placeId != null && lead.placeId!.trim().isNotEmpty) seenPlaceIds.add(lead.placeId!.trim());
+        if (lead.normalizedCompanyName.isNotEmpty) seenCompanyNames.add(lead.normalizedCompanyName);
+        uniqueLeads.add(lead);
+      }
+
+      return uniqueLeads;
     } catch (_) {
       return [];
     }
@@ -117,24 +137,55 @@ class LeadsNotifier extends Notifier<List<Lead>> {
     }).toList();
   }
 
-  /// Adds new lead (e.g. from sync/scraper)
+  /// Adds new lead (e.g. from sync/scraper) with zero-duplicate guarantee
   Future<void> addLead(Lead lead) async {
     if (StorageService.isPhoneBlacklisted(lead.phone)) return;
+
+    // Check if this lead already exists in current state by ANY dimension
+    final alreadyInState = state.any((l) => l.isSameBusiness(lead));
+    if (alreadyInState) return;
+
     await StorageService.leadsBox.put(lead.id, lead);
+    await StorageService.markLeadProcessed(
+      phone: lead.phone,
+      placeId: lead.placeId ?? lead.id,
+      companyName: lead.companyName,
+      id: lead.id,
+    );
+
     state = [lead, ...state];
   }
 
-  /// Adds a batch of newly scraped leads, persisting to Hive immediately
+  /// Adds a batch of newly scraped leads, strictly enforcing zero duplication
   Future<void> addLeadsBatch(List<Lead> newLeads) async {
     final toAdd = <String, Lead>{};
+    final updatedList = List<Lead>.from(state);
+
     for (final lead in newLeads) {
-      if (!StorageService.isPhoneBlacklisted(lead.phone)) {
-        toAdd[lead.id] = lead;
+      if (StorageService.isPhoneBlacklisted(lead.phone)) continue;
+
+      // Check if already in current state or incoming batch
+      final inState = updatedList.any((l) => l.isSameBusiness(lead));
+      final inBatch = toAdd.values.any((l) => l.isSameBusiness(lead));
+
+      if (inState || inBatch) {
+        continue;
       }
+
+      toAdd[lead.id] = lead;
+      updatedList.insert(0, lead);
+
+      await StorageService.markLeadProcessed(
+        phone: lead.phone,
+        placeId: lead.placeId ?? lead.id,
+        companyName: lead.companyName,
+        id: lead.id,
+      );
     }
+
     if (toAdd.isNotEmpty) {
       await StorageService.leadsBox.putAll(toAdd);
-      state = [...toAdd.values, ...state];
+      state = updatedList;
     }
   }
 }

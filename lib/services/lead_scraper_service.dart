@@ -191,15 +191,18 @@ class LeadScraperService {
         continue;
       }
 
-      // Check Persistent SHA-256 Deduplication
-      final placeId = lead.placeId ?? lead.id;
-      if (StorageService.isLeadProcessed(lead.phone, placeId)) {
-        duplicatesSkipped++;
-        continue;
-      }
+      // Check 5-Layer Bulletproof Deduplication Barrier
+      final isDupe = StorageService.isDuplicateLead(
+        phone: lead.phone,
+        placeId: lead.placeId,
+        companyName: lead.companyName,
+        id: lead.id,
+      );
 
-      // Check Existing Leads in Box
-      if (StorageService.leadsBox.containsKey(lead.id)) {
+      // Check if already in current candidates batch
+      final alreadyInCandidates = candidates.any((c) => c.isSameBusiness(lead));
+
+      if (isDupe || alreadyInCandidates) {
         duplicatesSkipped++;
         continue;
       }

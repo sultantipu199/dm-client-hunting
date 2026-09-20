@@ -205,6 +205,43 @@ class Lead {
       aiAnalysisJson: json['ai_analysis_json'] as String?,
     );
   }
+
+  /// Canonical clean phone digits for zero-collision identity
+  String get normalizedPhone {
+    final clean = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (clean.startsWith('00')) return clean.substring(2);
+    if (clean.startsWith('05') && clean.length == 10) return '966${clean.substring(1)}';
+    return clean;
+  }
+
+  /// Normalized lowercase company name with punctuation and spacing stripped
+  String get normalizedCompanyName {
+    return companyName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06FF]'), '').trim();
+  }
+
+  /// Checks if this lead represents the same business entity as another lead
+  bool isSameBusiness(Lead other) {
+    if (id == other.id) return true;
+    if (normalizedPhone.isNotEmpty && normalizedPhone == other.normalizedPhone) return true;
+    if (placeId != null && placeId!.trim().isNotEmpty && placeId!.trim() == other.placeId?.trim()) return true;
+    if (normalizedCompanyName.isNotEmpty && normalizedCompanyName == other.normalizedCompanyName) return true;
+    return false;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! Lead) return false;
+    return isSameBusiness(other);
+  }
+
+  @override
+  int get hashCode {
+    if (normalizedPhone.isNotEmpty) return normalizedPhone.hashCode;
+    if (placeId != null && placeId!.trim().isNotEmpty) return placeId!.trim().hashCode;
+    if (normalizedCompanyName.isNotEmpty) return normalizedCompanyName.hashCode;
+    return id.hashCode;
+  }
 }
 
 /// Hive Strongly-Typed TypeAdapter for Lead

@@ -1,7 +1,7 @@
 {
   "registry_version": "1.0",
   "description": "Persistent SHA-256 deduplication registry for verified Riyadh B2B leads",
-  "last_updated": "2026-09-20T11:54:56.416064+00:00",
+  "last_updated": "2026-09-20T12:53:56.210275+00:00",
   "entries": {
     "ff05ee40a735696ae9a83cc45423602c04203db11e40cc8d1170298ceeaf89c6": {
       "place_id": "ChIJJzoGECgDLz4Raw9i1BPA9T8",
@@ -109,6 +109,366 @@
       "place_id": "ChIJQ_i4LAvjLj4R6qMvY4JSPV4",
       "phone": "+966500406660",
       "company_name": "Hital Tower",
+      "date_added": "2026-09-20"
+    },
+    "55ce0b1fb1b6d9f279ad1fd8e335609a14d88efec37812a1c58d5e34b054db0c": {
+      "place_id": "ChIJlUwzCwL_Lj4RXi7ZSozjeuM",
+      "phone": "+966543376160",
+      "company_name": "شركة أبراج الشامل للإستشارات الهندسية",
+      "date_added": "2026-09-20"
+    },
+    "6f3b54c3bd49df53e8dc09e93613ac9a542358879e1d6a29d4e03b9c04666067": {
+      "place_id": "ChIJM3Ju0PABLz4RxX-0GzYOLJQ",
+      "phone": "+966534668600",
+      "company_name": "شركة عاص للاستشارات الهندسيه",
+      "date_added": "2026-09-20"
+    },
+    "63c84467e507897ab9d4dfda0301333844937c06b0cc558afb74f4c453cbae35": {
+      "place_id": "ChIJRUT7-e77Lj4RYm70LMNIqvM",
+      "phone": "+966536909070",
+      "company_name": "شركة رواق نجد للإستشارات الهندسية وإستشارات السلامة",
+      "date_added": "2026-09-20"
+    },
+    "6bb6c18bc4d43b5768b5ccc376565b83be0382007fd34fd9b1d1c33650cc840b": {
+      "place_id": "ChIJaWkEzxb7Lj4RTurdieheJrQ",
+      "phone": "+966552662622",
+      "company_name": "The Camel Consulting & Brokerage Agency",
+      "date_added": "2026-09-20"
+    },
+    "2185fec62549fc359bce1a7ac8a4c249481497f41c629ab868774c745b1fd445": {
+      "place_id": "ChIJQyiKRuMDLz4RzcN4cQ3NJzg",
+      "phone": "+966538682808",
+      "company_name": "نرد شركة تصميم تطبيقات الرياض | أفضل شركة تطبيقات جوال في السعودية",
+      "date_added": "2026-09-20"
+    },
+    "7447dc2374754c6f80645ee1eecd61971f38a613dfde0ebcde886bede43b2841": {
+      "place_id": "ChIJQzmkiUr9Lj4R19K2HDTgMRA",
+      "phone": "+966555964960",
+      "company_name": "Creative Formula",
+      "date_added": "2026-09-20"
+    },
+    "45e4a0336065d429c8d202bf27ac81472a1c9dff85421472f029b47ca37b9df1": {
+      "place_id": "ChIJhfnJTGDD_hUR8zM9zAK3pEA",
+      "phone": "+966538662141",
+      "company_name": "Digital Marketing Agency in Riyadh",
+      "date_added": "2026-09-20"
+    },
+    "10040920908cbc351c13df4a3dbf245e99698b69c03cb31f329f696471671578": {
+      "place_id": "ChIJ0blde6wDLz4RrjajyIm6n9Q",
+      "phone": "+966591153847",
+      "company_name": "StandardTouch | Web Designing & Digital Marketing Company",
+      "date_added": "2026-09-20"
+    },
+    "d006f2dbd6b9cfc26b454e727e0fdbfac147eb30773b9e0af5e0360588c30a15": {
+      "place_id": "ChIJ04btRlEHLz4RiW129mzPs9w",
+      "phone": "+966506195881",
+      "company_name": "UpGro Digital",
+      "date_added": "2026-09-20"
+    },
+    "0bb5b386fabf3c803aa94e29efb4589232017cb224624a971112743a1abd169c": {
+      "place_id": "ChIJsx75Ir8JLz4RCsv4vDRTybQ",
+      "phone": "+966535016733",
+      "company_name": "بصمة التغيير للتسويق والإعلانات",
+      "date_added": "2026-09-20"
+    },
+    "2534a38fdef7d2d1b78cf94e7f6b36269560b7e325445e4a21f0a6c862b8e152": {
+      "place_id": "ChIJY65u2EYFLz4RkPPwkSTtUEg",
+      "phone": "+966590098468",
+      "company_name": "Dunesberry Digital Marketing & Brand Agency",
+      "date_added": "2026-09-20"
+    },
+    "477a1d9d53dfdc1a33ed0879a8b6ac7be855ae7764e18ed452c986ead813f7a4": {
+      "place_id": "ChIJ9QFE0ZYDLz4RyEKcoRXZdIg",
+      "phone": "+966550548787",
+      "company_name": "Loop Media Agency || شركة تسويق وتطوير اعمال",
+      "date_added": "2026-09-20"
+    },
+    "1a63e4bc81279611ca4a4a9bded34d315874e94c99dc7fc2149ca7e5438f83c1": {
+      "place_id": "ChIJUbVljIz9Lj4RU32YEnO40Fg",
+      "phone": "+966545979718",
+      "company_name": "Effect Digital Marketing company | شركة افكت للتسويق الالكتروني",
+      "date_added": "2026-09-20"
+    },
+    "4ee7512820bfd47bb2d4c92ee68fef5e6f473fd1bd5d6f0cf000cbd1b8b4e046": {
+      "place_id": "ChIJwUqLCrz9Lj4RRIxTpDdC0Eo",
+      "phone": "+966535444162",
+      "company_name": "Rayat Marketing Company",
+      "date_added": "2026-09-20"
+    },
+    "6a08694de204313f7a6e3dd86e3cc83cae8f9b2f32bf57704b650a252c7b6983": {
+      "place_id": "ChIJvbewFUoFLz4R5lGK9OAU2eY",
+      "phone": "+966593131442",
+      "company_name": "Besmart Me Company",
+      "date_added": "2026-09-20"
+    },
+    "00feade2e7e3adfdbb323ff5ca772d0eb0984c21ccf6a80de22761083826dd2b": {
+      "place_id": "ChIJiXBrWoYDLz4RLvYPTh6QhTc",
+      "phone": "+966555604658",
+      "company_name": "Pureminds",
+      "date_added": "2026-09-20"
+    },
+    "f1d9fbf7aee14b04150838ae0f5a1ecbda3049176c32886b49b9127ab5cef356": {
+      "place_id": "ChIJb57mRXLkLj4RA_qkB99ARMs",
+      "phone": "+966556064971",
+      "company_name": "Center (Commercial Almlqa and office center)",
+      "date_added": "2026-09-20"
+    },
+    "91c9e3f5d4347fa892bbe7fd683b22205bcb103640b5daf80bee93d98e575a6a": {
+      "place_id": "ChIJN1CeOPHlLj4R-uxLI6PPrpw",
+      "phone": "+966531100336",
+      "company_name": "Business Park",
+      "date_added": "2026-09-20"
+    },
+    "4e5d37be752d1cf63ba5b4c864cee37f1e21ac28380ac497afbf6ea03a8a6beb": {
+      "place_id": "ChIJ1SlZLgDhLj4R-SWKX8mM7Bs",
+      "phone": "+966591116500",
+      "company_name": "Business Gate Company - Served offices شركة بوابة الأعمال لخدمات الأعمال - مكاتب عمل مشتركة",
+      "date_added": "2026-09-20"
+    },
+    "6628dd43206fd8d479a48aec7d2c937a980d72cdf08f20865272671bad0171b0": {
+      "place_id": "ChIJZyVUgJ3lLj4RlnKgMBaBmec",
+      "phone": "+966544096908",
+      "company_name": "Insiyab Business Communications and Information Technology Company",
+      "date_added": "2026-09-20"
+    },
+    "fc0aa6fdc06b21e11bf244182869c4a2d303ca5eaaeac1f65cbf3fc48c9be2d2": {
+      "place_id": "ChIJCViCgd3lLj4R9O5vOwqLa_E",
+      "phone": "+966532241555",
+      "company_name": "Nawaf Square",
+      "date_added": "2026-09-20"
+    },
+    "95eb143943bdbcf36a35435b5dc560bfef835ea0b235381a9c455d33eb06e03e": {
+      "place_id": "ChIJB-c-LjHlLj4RLeOYETZTuSg",
+      "phone": "+966557601070",
+      "company_name": "صيت",
+      "date_added": "2026-09-20"
+    },
+    "86e459d5e0edff1c5df764a6e95fe3f1c9a3c1e6e6e37d5a0aa69387a33ccd40": {
+      "place_id": "ChIJl9tbsXHkLj4RMsRo8fjdVhU",
+      "phone": "+966505639322",
+      "company_name": "Al-Malqa Rihana Boulevard",
+      "date_added": "2026-09-20"
+    },
+    "213b04a6211d8020fb0f2a9f851da5daeeb4e39e32bef7edb659a572dd91b7e9": {
+      "place_id": "ChIJH1LgLMblLj4RwpD-Edp-MTo",
+      "phone": "+966505250590",
+      "company_name": "مكتب نايف العبيد للعقارات Naif Alobaid Real Estate Office",
+      "date_added": "2026-09-20"
+    },
+    "caf39afb7fcc41921670e30eeed61a0c2c9c7aad636fde331e5ce63c999eb5ad": {
+      "place_id": "ChIJs6bu4SoFLz4Rvw7A1u3VScY",
+      "phone": "+966583161741",
+      "company_name": "شركة مدينة الأعمال للطاقةالشمسية والغطاسات",
+      "date_added": "2026-09-20"
+    },
+    "2a7139d329dbcfd0f7190d3da935dac1c79c7293eadb9bb4b704552267130474": {
+      "place_id": "ChIJZ3hQV6cCLz4RsTnuhjj7OZg",
+      "phone": "+966593793883",
+      "company_name": "Digital Store",
+      "date_added": "2026-09-20"
+    },
+    "e92d30c2f086da1fd4efe830f835c24f2c74f4f913084e7919201707fea6cdc3": {
+      "place_id": "ChIJr6ailW0DLz4RjpZq-P64POs",
+      "phone": "+966599852996",
+      "company_name": "Digital office System",
+      "date_added": "2026-09-20"
+    },
+    "e91ceaefa37aa690b23239d9463a3c490376af80448c44c7246286d672e02b1e": {
+      "place_id": "ChIJB7grqLYDLz4RH2aLqX6_5Ds",
+      "phone": "+966506355376",
+      "company_name": "BIOS Middle East - Saudi Arabia Office",
+      "date_added": "2026-09-20"
+    },
+    "8dc7253f2c9f555651d9c39b58e9ef9bcf6790b25725e669eedda17ecb251172": {
+      "place_id": "ChIJdeLMV7_9Lj4RSwLisXMf1rI",
+      "phone": "+966596974470",
+      "company_name": "Jash Maintanence office for Granada",
+      "date_added": "2026-09-20"
+    },
+    "d2cae34fb13bf52829ac5d398d85378297ed9548da0170210383c4bbbe1e1c43": {
+      "place_id": "ChIJ_5eYEeL9Lj4Rf9sHOszSQuM",
+      "phone": "+966535137919",
+      "company_name": "Signature Business Center",
+      "date_added": "2026-09-20"
+    },
+    "a0c631d49e5f668242bba3c3141556b6e43c8dc6ccf24c0de02ab86d10ca2497": {
+      "place_id": "ChIJy5uNpbj9Lj4RvwybrLuCulo",
+      "phone": "+966590000959",
+      "company_name": "Zain KSA - Head Office",
+      "date_added": "2026-09-20"
+    },
+    "8c05d9751a28024d94a1bf7ceae23b8236771a82426f7d258ebfe09f3302d7f2": {
+      "place_id": "ChIJH25c4H1pXz4R0vGld1oKU58",
+      "phone": "+971585779312",
+      "company_name": "Jetset Business Center - Prime Tower",
+      "date_added": "2026-09-20"
+    },
+    "169a715018c58a9cb454d9e92eeb905fd602af8297c3b59700943da50df4553c": {
+      "place_id": "ChIJSaYjvxJpXz4RuL_N8zKEU0k",
+      "phone": "+971562193730",
+      "company_name": "Black Swan Business Center",
+      "date_added": "2026-09-20"
+    },
+    "a386c99a37f2116381446547b6867e35c98fd50f0bc47bfa0551e23441986bb7": {
+      "place_id": "ChIJ-aasH2JpXz4RFbx9Be24RCY",
+      "phone": "+971561015656",
+      "company_name": "Vista Corporate Business Center",
+      "date_added": "2026-09-20"
+    },
+    "9b8090fa7415d3c256dd912502ac0e785171a237771343e43ecf566a07de4a80": {
+      "place_id": "ChIJYxiOnctpXz4RlE9ZDOYwY5c",
+      "phone": "+971545469713",
+      "company_name": "International Business Tower",
+      "date_added": "2026-09-20"
+    },
+    "2b2c8d2865fd899042021fa4fffe9b1ddb7b53324d2da072b28899c2df4f33c7": {
+      "place_id": "ChIJFUsMXyRpXz4RbGNOXDBnrm8",
+      "phone": "+971588442233",
+      "company_name": "HB Space Business Center",
+      "date_added": "2026-09-20"
+    },
+    "6040dd315a0d737a98e39a62e2f4922a3dd349027826f7dfbb1208634548575b": {
+      "place_id": "ChIJbb9cH_RpXz4RmhX1xFLnNHc",
+      "phone": "+971585166911",
+      "company_name": "ARM Business Center LLC",
+      "date_added": "2026-09-20"
+    },
+    "d4cfa67f497f39b6e9901288004dc8cd76e813115f1cd27eacca85d1c6b6132a": {
+      "place_id": "ChIJQ8dooMFpXz4RIbFSTZIEEYE",
+      "phone": "+971523582946",
+      "company_name": "Espada Business Center",
+      "date_added": "2026-09-20"
+    },
+    "67f55720e31333be4149a25157fd24f4d37cadfdb3a11cbb520c9690a33fae0e": {
+      "place_id": "ChIJ39hyJ8ZDXz4ReDaZrM_SaHA",
+      "phone": "+971561618872",
+      "company_name": "The Gate District",
+      "date_added": "2026-09-20"
+    },
+    "adbc4203cd3689324b3e15b869eb7e1a190e9b146efbb0b9f2d953825dfa7ee1": {
+      "place_id": "ChIJbcD3AvFDXz4R1RPbJzXYR5g",
+      "phone": "+971509245979",
+      "company_name": "Xavier Business Center - Sheikh Zayed Rd. DIFC",
+      "date_added": "2026-09-20"
+    },
+    "8c450261771262f4265b90098abb74c706c336c497c268f7faab8734c5ab5092": {
+      "place_id": "ChIJxcUOqBfFRT4RiShoc419RfY",
+      "phone": "+97430008547",
+      "company_name": "ISO Certification in Qatar l Qualitas Consulting",
+      "date_added": "2026-09-20"
+    },
+    "70be39ab29ff0610b4f38ce8c65946f286d10c7be89965202b354b0ca29332e8": {
+      "place_id": "ChIJTfeuqPjFRT4RkytPkvFvHJY",
+      "phone": "+97470337182",
+      "company_name": "Doha Business Works",
+      "date_added": "2026-09-20"
+    },
+    "fec9cff19204aa52f1f04505e83221d58334c7227205f73cd57ad91404d351b6": {
+      "place_id": "ChIJuYTOAU_PRT4R5q94fXN0jic",
+      "phone": "+97451990022",
+      "company_name": "Perfect Plan - Company Formation in Qatar",
+      "date_added": "2026-09-20"
+    },
+    "3f322f5f084120fe4906d04350602f0bde79834d168c87fc76218863ef9a0faf": {
+      "place_id": "ChIJC3ig7DTFRT4RC7KgCHjtCRc",
+      "phone": "+97477334846",
+      "company_name": "RAG Global Business Hub | West Bay, Doha Branch",
+      "date_added": "2026-09-20"
+    },
+    "d3d26dded91fd126ef548b53b25d3b77bab87ece890a99c181a03f1d1bfbdabd": {
+      "place_id": "ChIJlddIPWfFRT4RCvR_VYuHAuY",
+      "phone": "+97451065170",
+      "company_name": "Doha International Consulting Group",
+      "date_added": "2026-09-20"
+    },
+    "4f510f565a6297d40307f8faf4841b4f6d9e85108eab46148e8bbac0c2252285": {
+      "place_id": "ChIJkQF172zbRT4Rn_HRJzlrXhA",
+      "phone": "+97433626649",
+      "company_name": "Federal Experts Consultancy LLC",
+      "date_added": "2026-09-20"
+    },
+    "58eee1eb4b801c759f946d3c958a8adf63ec4b5a48594eff3ca1de5940b49a7e": {
+      "place_id": "ChIJc-bUGk8v70MR5a-ungtLxH8",
+      "phone": "+97431000825",
+      "company_name": "Nama Management Consulting | التميز الحكومي والاستراتيجية",
+      "date_added": "2026-09-20"
+    },
+    "8a5b2758d4b176a60ff3d7ee72d22aa2c3e1fb2c31fca8775838237400092535": {
+      "place_id": "ChIJswDzyibFRT4RN5_Torzj4ZY",
+      "phone": "+97466063379",
+      "company_name": "M & M Consultancy Services, Qatar",
+      "date_added": "2026-09-20"
+    },
+    "1f0d0d33f2505cb2410d739ee69ef72d29c260f7406246284d87a6917daadcfb": {
+      "place_id": "ChIJScSu-T7FRT4RK4LvNNcXH_I",
+      "phone": "+97450144805",
+      "company_name": "Consulting Haus LLC",
+      "date_added": "2026-09-20"
+    },
+    "745ca5ae2b503a7da4003c5fd781849710dd2ca7b2cf41bc53ec18fe33d619c8": {
+      "place_id": "ChIJ4Zt_1k3FRT4RxhjU1pr2gN8",
+      "phone": "+97451666305",
+      "company_name": "Joy Emerging Consultancy and Services | Jecs Qatar",
+      "date_added": "2026-09-20"
+    },
+    "d0009900c89392d1b0ca9d98d58f8171d609c83f65f4f37e8bba34157763baea": {
+      "place_id": "ChIJ22OvJsyFzz8RRoMryrYpFQ4",
+      "phone": "+96599754087",
+      "company_name": "Head Office - Al Kuwait City",
+      "date_added": "2026-09-20"
+    },
+    "79aba203d276178a02d51f39c8bf47ceb98b948ce7a7787fad3529614ca61e42": {
+      "place_id": "ChIJCc8Aj5SFzz8RqqoZHzHTBJA",
+      "phone": "+96567007377",
+      "company_name": "شركة الشراع | ALSHERAA",
+      "date_added": "2026-09-20"
+    },
+    "b4ad9105e454d3bf6100ec0bc6d1e2ba5f36041dc3521746046fd04f3a73ddd3": {
+      "place_id": "ChIJk6iCQZSEzz8Rqv8XVTbVw_c",
+      "phone": "+96598794999",
+      "company_name": "Vortex Logistics Company",
+      "date_added": "2026-09-20"
+    },
+    "432a5e75f24b5c5f2f4a85319888db5a24a6f4d2b4540114a8313d47b2d9d0a6": {
+      "place_id": "ChIJDY4wYR-Fzz8R6HH7Z32DivY",
+      "phone": "+96550444062",
+      "company_name": "Sabel United Co. Head Office",
+      "date_added": "2026-09-20"
+    },
+    "79b6b23d9d5e637e9f306275a0e61ca610a154848295c681f9fbeb294b9d4250": {
+      "place_id": "ChIJVxnnQZSEzz8RcIyJSDLOF1k",
+      "phone": "+96599541503",
+      "company_name": "A",
+      "date_added": "2026-09-20"
+    },
+    "64530c112d9fd6728da8ecefbb7a3e9f1297b12f15df31c4cb0fc3dd1caf3e3b": {
+      "place_id": "ChIJA4GHAJOEzz8R0qBYVfYN5C0",
+      "phone": "+96598876502",
+      "company_name": "H&S Store Head Office",
+      "date_added": "2026-09-20"
+    },
+    "084b2c1595f404fcd11d17031311e1b34d18049eb730093064c511cfb410e0b8": {
+      "place_id": "ChIJLQ8WNo39Lj4RNug20anBffU",
+      "phone": "+966557878568",
+      "company_name": "Incorporated MENA",
+      "date_added": "2026-09-20"
+    },
+    "e243a4ef304b999072512fc678457e30e6fd49142023bbf13f73e6cce67f2333": {
+      "place_id": "ChIJIc4-sKMKFU0RFHgqTG0AHR4",
+      "phone": "+966505276945",
+      "company_name": "Impactors Consulting Services | إمباكتورز لخدمات الأعمال",
+      "date_added": "2026-09-20"
+    },
+    "9b6d2215a259c1ab55c4882b27daa30c6a69f9d0e6c6d817fe688ec98e6d4f28": {
+      "place_id": "ChIJR0sKlhL7Lj4RfS9f7vYU68U",
+      "phone": "+966592949998",
+      "company_name": "خطط الأعمال Business Plans",
+      "date_added": "2026-09-20"
+    },
+    "b68f37e631da79355c695383a2800f983f1cf99be06abb6eb904a7aec5af2490": {
+      "place_id": "ChIJy4Jr8l5_2YMR0zaFWvf9Uts",
+      "phone": "+971521995191",
+      "company_name": "PRODIGY GROUP UAE",
       "date_added": "2026-09-20"
     }
   }

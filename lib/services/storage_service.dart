@@ -16,6 +16,13 @@ class StorageService {
   static Box<String>? _processedLeadsBox;
   static Box<dynamic>? _settingsBox;
 
+  // Ultra-fast in-memory indexing for zero-collision duplicate rejection
+  static final Set<String> _knownPhones = <String>{};
+  static final Set<String> _knownPlaceIds = <String>{};
+  static final Set<String> _knownCompanyNames = <String>{};
+  static final Set<String> _knownHashes = <String>{};
+  static final Set<String> _knownLeadIds = <String>{};
+
   /// Initializes Hive, registers TypeAdapters, and opens primary boxes
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -33,8 +40,16 @@ class StorageService {
     // Sync permanent lead registry into Hive box 'processed_leads'
     await syncLeadRegistry();
 
+    // Rebuild in-memory indexing
+    _rebuildKnownIndices();
+
     // Synchronize feed leads while strictly enforcing deduplication and blacklist barriers
     await syncLeadsFromFeed();
+  }
+
+  /// Normalizes company name to lowercase alphanumeric for robust match
+  static String normalizeCompanyName(String rawName) {
+    return rawName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06FF]'), '').trim();
   }
 
   /// Normalizes Saudi / GCC mobile phone to standard +9665xxxxxxxx format
@@ -57,6 +72,52 @@ class StorageService {
     return sha256.convert(utf8.encode(key)).toString();
   }
 
+  static void _rebuildKnownIndices() {
+    _knownPhones.clear();
+    _knownPlaceIds.clear();
+    _knownCompanyNames.clear();
+    _knownHashes.clear();
+    _knownLeadIds.clear();
+
+    if (_leadsBox != null) {
+      for (final lead in _leadsBox!.values) {
+        _indexLead(lead);
+      }
+    }
+
+    if (_processedLeadsBox != null) {
+      for (final key in _processedLeadsBox!.keys) {
+        final hashKey = key.toString();
+        _knownHashes.add(hashKey);
+        try {
+          final raw = _processedLeadsBox!.get(hashKey);
+          if (raw != null) {
+            final map = jsonDecode(raw) as Map<String, dynamic>;
+            final p = map['phone']?.toString();
+            final pid = map['place_id']?.toString();
+            final cname = map['company_name']?.toString();
+            if (p != null && p.isNotEmpty) _knownPhones.add(normalizePhone(p));
+            if (pid != null && pid.isNotEmpty) _knownPlaceIds.add(pid.trim());
+            if (cname != null && cname.isNotEmpty) _knownCompanyNames.add(normalizeCompanyName(cname));
+          }
+        } catch (_) {}
+      }
+    }
+  }
+
+  static void _indexLead(Lead lead) {
+    _knownLeadIds.add(lead.id);
+    final normP = normalizePhone(lead.phone);
+    if (normP.isNotEmpty) _knownPhones.add(normP);
+    if (lead.placeId != null && lead.placeId!.trim().isNotEmpty) {
+      _knownPlaceIds.add(lead.placeId!.trim());
+    }
+    final normName = normalizeCompanyName(lead.companyName);
+    if (normName.isNotEmpty) _knownCompanyNames.add(normName);
+    final placeId = lead.placeId ?? lead.id;
+    _knownHashes.add(computeLeadHash(lead.phone, placeId));
+  }
+
   /// Synchronizes entries from assets/data/lead_registry.json into Hive box 'processed_leads'
   static Future<void> syncLeadRegistry() async {
     try {
@@ -70,6 +131,17 @@ class StorageService {
             ? jsonEncode(entry.value)
             : entry.value.toString();
         await _processedLeadsBox?.put(hashKey, details);
+        _knownHashes.add(hashKey);
+
+        if (entry.value is Map<String, dynamic>) {
+          final m = entry.value as Map<String, dynamic>;
+          final p = m['phone']?.toString();
+          final pid = m['place_id']?.toString();
+          final cname = m['company_name']?.toString();
+          if (p != null && p.isNotEmpty) _knownPhones.add(normalizePhone(p));
+          if (pid != null && pid.isNotEmpty) _knownPlaceIds.add(pid.trim());
+          if (cname != null && cname.isNotEmpty) _knownCompanyNames.add(normalizeCompanyName(cname));
+        }
       }
     } catch (_) {
       // Asset not yet present or empty
@@ -78,34 +150,76 @@ class StorageService {
 
   /// Checks if a lead has already been processed using its composite hash
   static bool isLeadProcessed(String phone, String placeId) {
-    if (_processedLeadsBox == null) return false;
     final hashKey = computeLeadHash(phone, placeId);
+    if (_knownHashes.contains(hashKey)) return true;
+    if (_processedLeadsBox == null) return false;
     return _processedLeadsBox!.containsKey(hashKey);
   }
 
   /// Checks if a specific SHA-256 hashKey exists in processed leads
   static bool isHashProcessed(String hashKey) {
+    if (_knownHashes.contains(hashKey)) return true;
     if (_processedLeadsBox == null) return false;
     return _processedLeadsBox!.containsKey(hashKey);
   }
 
-  /// Marks lead as processed in Hive box 'processed_leads'
+  /// 5-Layer Bulletproof Deduplication Barrier:
+  /// Guarantees that no lead with the same Phone, Place ID, Company Name,
+  /// Composite SHA-256 Hash, or Lead ID is ever returned or stored twice.
+  static bool isDuplicateLead({
+    required String phone,
+    String? placeId,
+    String? companyName,
+    String? id,
+  }) {
+    if (id != null && _knownLeadIds.contains(id)) return true;
+    final normP = normalizePhone(phone);
+    if (normP.isNotEmpty && _knownPhones.contains(normP)) return true;
+    if (placeId != null && placeId.trim().isNotEmpty && _knownPlaceIds.contains(placeId.trim())) {
+      return true;
+    }
+    if (companyName != null && companyName.trim().isNotEmpty) {
+      final normName = normalizeCompanyName(companyName);
+      if (normName.isNotEmpty && _knownCompanyNames.contains(normName)) return true;
+    }
+    final effectivePlaceId = (placeId != null && placeId.trim().isNotEmpty) ? placeId.trim() : id;
+    if (effectivePlaceId != null) {
+      final hash = computeLeadHash(phone, effectivePlaceId);
+      if (_knownHashes.contains(hash)) return true;
+      if (_processedLeadsBox?.containsKey(hash) ?? false) return true;
+    }
+    return false;
+  }
+
+  /// Marks lead as processed across all persistent and in-memory deduplication layers
   static Future<void> markLeadProcessed({
     required String phone,
     required String placeId,
     String? companyName,
     String? dateAdded,
+    String? id,
   }) async {
+    final normP = normalizePhone(phone);
+    final normPid = placeId.trim();
+    final normName = companyName != null ? normalizeCompanyName(companyName) : '';
     final hashKey = computeLeadHash(phone, placeId);
     final date = dateAdded ?? DateTime.now().toIso8601String().substring(0, 10);
+
     final record = jsonEncode({
       'hash_key': hashKey,
-      'place_id': placeId,
-      'phone': normalizePhone(phone),
+      'place_id': normPid,
+      'phone': normP,
       'company_name': companyName ?? '',
       'date_added': date,
     });
+
     await _processedLeadsBox?.put(hashKey, record);
+
+    if (id != null) _knownLeadIds.add(id);
+    if (normP.isNotEmpty) _knownPhones.add(normP);
+    if (normPid.isNotEmpty) _knownPlaceIds.add(normPid);
+    if (normName.isNotEmpty) _knownCompanyNames.add(normName);
+    _knownHashes.add(hashKey);
   }
 
   /// Synchronizes leads from assets/data/leads_feed.json with local Hive storage.
@@ -122,10 +236,6 @@ class StorageService {
         // Pre-Ingestion Check 1: Blacklist
         if (isPhoneBlacklisted(feedLead.phone)) continue;
 
-        // Pre-Ingestion Check 2: Deduplication by Place ID and Normalized Phone Hash
-        final placeId = feedLead.placeId ?? feedLead.id;
-        final hashKey = computeLeadHash(feedLead.phone, placeId);
-
         final existing = _leadsBox?.get(feedLead.id);
         if (existing != null) {
           // Merge metadata while strictly preserving user interaction status
@@ -136,23 +246,27 @@ class StorageService {
             aiAnalysisJson: existing.aiAnalysisJson ?? feedLead.aiAnalysisJson,
           );
           await _leadsBox?.put(feedLead.id, updated);
-          await markLeadProcessed(
-            phone: feedLead.phone,
-            placeId: placeId,
-            companyName: feedLead.companyName,
-          );
+          _indexLead(updated);
         } else {
-          // Check if this business/phone combination was ever ingested before
-          if (isHashProcessed(hashKey)) {
-            // Already processed in permanent registry - DROP IMMEDIATELY
+          // Check if this lead already exists under a different key in leadsBox
+          final alreadyExistsInBox = _leadsBox?.values.any((l) =>
+              l.id == feedLead.id ||
+              l.normalizedPhone == feedLead.normalizedPhone ||
+              (l.placeId != null && l.placeId == feedLead.placeId) ||
+              l.normalizedCompanyName == feedLead.normalizedCompanyName) ?? false;
+
+          if (alreadyExistsInBox) {
             continue;
           }
+
           // Genuine new lead ingestion
           await _leadsBox?.put(feedLead.id, feedLead);
+          _indexLead(feedLead);
           await markLeadProcessed(
             phone: feedLead.phone,
-            placeId: placeId,
+            placeId: feedLead.placeId ?? feedLead.id,
             companyName: feedLead.companyName,
+            id: feedLead.id,
           );
         }
       }

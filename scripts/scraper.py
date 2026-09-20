@@ -26,32 +26,88 @@ try:
 except ImportError:
     from url_validator import batch_verify_leads, validate_url
 
-# Required Riyadh Commercial Search Queries and Associated Corridors
+# Required Riyadh & MENA Commercial Search Queries and Associated Corridors
 SEARCH_TARGETS = [
+    # Core Riyadh Corridors
     {
         "query": "corporate office in KAFD",
         "corridor": "KAFD Phase 1 & 2",
         "sector": "Newly Formed Corporate Firms",
+        "country": "Saudi Arabia (KSA)",
     },
     {
         "query": "business offices in Al Olaya",
         "corridor": "Al Olaya Commercial District",
         "sector": "Management & Strategy Consulting",
+        "country": "Saudi Arabia (KSA)",
     },
     {
         "query": "consulting company in Al Narjis",
         "corridor": "Al Narjis Commercial Corridor",
         "sector": "Management & Strategy Consulting",
+        "country": "Saudi Arabia (KSA)",
     },
     {
         "query": "head office in Roshn Front",
         "corridor": "Roshn Front Business Zone",
         "sector": "B2B Tech & SaaS Solutions",
+        "country": "Saudi Arabia (KSA)",
     },
     {
         "query": "corporate towers King Salman Rd",
         "corridor": "King Salman Road Business Strip",
         "sector": "Luxury Real Estate Agencies",
+        "country": "Saudi Arabia (KSA)",
+    },
+    {
+        "query": "digital marketing agency in Riyadh",
+        "corridor": "Digital City Tech Park",
+        "sector": "B2B Tech & SaaS Solutions",
+        "country": "Saudi Arabia (KSA)",
+    },
+    {
+        "query": "commercial office in Al Malqa Riyadh",
+        "corridor": "Al Malqa Prestige District",
+        "sector": "Newly Formed Corporate Firms",
+        "country": "Saudi Arabia (KSA)",
+    },
+    {
+        "query": "corporate office in Digital City Riyadh",
+        "corridor": "Digital City Tech Park",
+        "sector": "B2B Tech & SaaS Solutions",
+        "country": "Saudi Arabia (KSA)",
+    },
+    {
+        "query": "offices in Granada Business Park Riyadh",
+        "corridor": "Granada Business Park",
+        "sector": "Management & Strategy Consulting",
+        "country": "Saudi Arabia (KSA)",
+    },
+    # UAE Corridors
+    {
+        "query": "business offices in Business Bay Dubai",
+        "corridor": "Business Bay Corporate Towers (Dubai)",
+        "sector": "Management & Strategy Consulting",
+        "country": "United Arab Emirates (UAE)",
+    },
+    {
+        "query": "corporate office in DIFC Dubai",
+        "corridor": "DIFC Financial Centre (Dubai)",
+        "sector": "B2B Tech & SaaS Solutions",
+        "country": "United Arab Emirates (UAE)",
+    },
+    # Qatar & Kuwait Corridors
+    {
+        "query": "consulting firm in West Bay Doha",
+        "corridor": "West Bay Commercial Towers (Doha)",
+        "sector": "Management & Strategy Consulting",
+        "country": "Qatar",
+    },
+    {
+        "query": "corporate office in Sharq Kuwait",
+        "corridor": "Sharq Financial District (Kuwait City)",
+        "sector": "Newly Formed Corporate Firms",
+        "country": "Kuwait",
     },
 ]
 
@@ -109,6 +165,28 @@ def normalize_saudi_mobile(phone: Optional[str]) -> Optional[str]:
 
     # Strict normalization to +9665xxxxxxxx
     return f"+966{digits[-9:]}"
+
+
+def normalize_mena_mobile(phone: Optional[str], country: str = "Saudi Arabia (KSA)") -> Optional[str]:
+    """Validates and normalizes mobile contacts across Saudi Arabia and core GCC corridors."""
+    if not phone:
+        return None
+    raw = phone.strip()
+    clean = re.sub(r'[\s\-\(\)\.]', '', raw)
+    digits = re.sub(r'[^0-9]', '', clean)
+
+    if country == "Saudi Arabia (KSA)":
+        return normalize_saudi_mobile(phone)
+    elif country == "United Arab Emirates (UAE)":
+        if re.match(r"^(?:\+971|00971|0)?5[0-9]{8}$", clean):
+            return f"+971{digits[-9:]}"
+    elif country == "Qatar":
+        if re.match(r"^(?:\+974|00974)?[3567][0-9]{7}$", clean):
+            return f"+974{digits[-8:]}"
+    elif country == "Kuwait":
+        if re.match(r"^(?:\+965|00965)?[569][0-9]{7}$", clean):
+            return f"+965{digits[-8:]}"
+    return None
 
 
 def query_google_places_api(api_key: str, query: str) -> List[Dict[str, Any]]:
@@ -338,7 +416,8 @@ def run_scraper():
         query = target["query"]
         corridor = target["corridor"]
         sector = target["sector"]
-        print(f"\n🔍 Searching corridor: '{query}' -> [{corridor}]")
+        country = target.get("country", "Saudi Arabia (KSA)")
+        print(f"\n🔍 Searching corridor: '{query}' -> [{corridor} | {country}]")
 
         if google_api_key:
             places = query_google_places_api(google_api_key, query)
@@ -348,11 +427,28 @@ def run_scraper():
         for p in places:
             p["corridor"] = corridor
             p["sector"] = sector
+            p["country"] = country
             raw_places_extracted.append(p)
 
     print(f"\n📍 Live Google Places Extracted: {len(raw_places_extracted)} total profiles.")
 
-    # Filter strictly by Saudi Mobile & Deduplication
+    # Populate known identity sets to guarantee zero duplication
+    known_phones = set()
+    known_place_ids = set()
+    known_names = set()
+
+    for hash_key, entry in registry_entries.items():
+        p = entry.get("phone")
+        pid = entry.get("place_id")
+        cname = entry.get("company_name")
+        if p:
+            known_phones.add(p)
+        if pid:
+            known_place_ids.add(pid)
+        if cname:
+            known_names.add(re.sub(r'[^a-z0-9]', '', cname.lower()))
+
+    # Filter strictly by Mobile & Multi-Barrier Deduplication
     verified_leads_to_ingest = []
     discarded_landlines_or_missing = 0
     discarded_duplicates = 0
@@ -366,10 +462,11 @@ def run_scraper():
         address = place.get("address", "Riyadh, Saudi Arabia").strip()
         corridor = place.get("corridor", "KAFD Phase 1 & 2")
         sector = place.get("sector", "Newly Formed Corporate Firms")
+        country = place.get("country", "Saudi Arabia (KSA)")
         website = place.get("website")
 
-        # 1. Saudi Mobile Filter: Accept ONLY numbers matching regex: r"^(?:\+966|00966|0)?5[0-9]{8}$"
-        normalized_phone = normalize_saudi_mobile(raw_phone)
+        # 1. Valid Mobile Filter
+        normalized_phone = normalize_mena_mobile(raw_phone, country)
         if not normalized_phone:
             discarded_landlines_or_missing += 1
             continue
@@ -381,12 +478,24 @@ def run_scraper():
             discarded_blacklisted += 1
             continue
 
-        # 3. Pre-Ingestion Deduplication Check
+        # 3. Pre-Ingestion Multi-Barrier Deduplication Check
+        norm_name = re.sub(r'[^a-z0-9]', '', company_name.lower())
         hash_key = compute_lead_hash(normalized_phone, place_id)
-        if hash_key in registry_entries:
-            print(f"🔄 [DEDUPLICATION DROP] {company_name} already in permanent registry (hash={hash_key[:10]}...)")
+
+        if (hash_key in registry_entries or
+            normalized_phone in known_phones or
+            (place_id and place_id in known_place_ids) or
+            (norm_name and norm_name in known_names)):
+            print(f"🔄 [DEDUPLICATION DROP] {company_name} ({normalized_phone}) already in registry")
             discarded_duplicates += 1
             continue
+
+        # Register immediately into known tracking sets
+        known_phones.add(normalized_phone)
+        if place_id:
+            known_place_ids.add(place_id)
+        if norm_name:
+            known_names.add(norm_name)
 
         # Valid genuine lead passed all layers
         gap_tuple = MARKETING_GAPS[gap_index % len(MARKETING_GAPS)]
@@ -395,26 +504,26 @@ def run_scraper():
         google_maps_url = f"https://maps.google.com/?q=place_id:{place_id}"
 
         lead_record = {
-            "id": f"riyadh_lead_{hash_key[:12]}",
+            "id": f"mena_lead_{hash_key[:12]}",
             "place_id": place_id,
             "company_name": company_name,
             "address": address,
             "google_maps_url": google_maps_url,
             "website_url": website,
-            "country": "Saudi Arabia (KSA)",
+            "country": country,
             "corridor": corridor,
             "sector": sector,
             "marketing_gap": gap_tuple[0],
             "marketing_gap_details": gap_tuple[1],
             "phone": normalized_phone,
-            "email": f"contact@{re.sub(r'[^a-zA-Z0-9]', '', company_name).lower()[:15]}.sa" if not website else f"info@{website.split('//')[-1].split('/')[0].lstrip('www.')}",
+            "email": f"contact@{re.sub(r'[^a-zA-Z0-9]', '', company_name).lower()[:15]}.com" if not website else f"info@{website.split('//')[-1].split('/')[0].lstrip('www.')}",
             "contact_name": "Executive Managing Partner",
             "contact_role": "Managing Director",
             "agrees_to_remote_work": True,
             "remote_tier": "MENA Cross-Border Retainer",
             "status": "new",
             "created_at": now.isoformat(),
-            "notes": "Verified authentic Google Place profile with verified Saudi corporate mobile."
+            "notes": "Verified authentic Google Place profile with verified corporate mobile."
         }
 
         # Post-Ingestion: Register hash in permanent registry
@@ -459,33 +568,48 @@ def run_scraper():
         except Exception:
             existing_feed = []
 
-    # Filter existing feed against registry and blacklist to eliminate any historical mock data
-    cleaned_existing = []
-    for item in existing_feed:
-        # Check place_id and phone
+    # Deduplicate combined_feed strictly by phone, place_id, and normalized company name
+    seen_phones = set()
+    seen_place_ids = set()
+    seen_names = set()
+    strictly_unique_feed = []
+
+    for item in existing_feed + hardened_leads:
+        p_phone = item.get("phone")
         p_id = item.get("place_id")
-        p_phone = normalize_saudi_mobile(item.get("phone"))
-        if not p_id or not p_phone:
-            # Historical mock lead lacking genuine place_id or invalid mobile -> PURGE
-            continue
-        h = compute_lead_hash(p_phone, p_id)
-        if p_phone in blacklist or re.sub(r'[^0-9]', '', p_phone) in blacklist:
-            continue
-        cleaned_existing.append(item)
+        p_name = re.sub(r'[^a-z0-9]', '', item.get("company_name", "").lower())
 
-    combined_feed = cleaned_existing + hardened_leads
+        if p_phone in seen_phones:
+            continue
+        if p_id and p_id in seen_place_ids:
+            continue
+        if p_name and p_name in seen_names:
+            continue
 
-    # Persist updated registry
+        if p_phone:
+            seen_phones.add(p_phone)
+        if p_id:
+            seen_place_ids.add(p_id)
+        if p_name:
+            seen_names.add(p_name)
+
+        strictly_unique_feed.append(item)
+
+    # Persist updated registry to both paths
     save_lead_registry(registry)
+    os.makedirs(os.path.dirname(ASSET_REGISTRY_PATH), exist_ok=True)
+    with open(ASSET_REGISTRY_PATH, "w", encoding="utf-8") as f:
+        json.dump(registry, f, indent=2, ensure_ascii=False)
+
     print(f"💾 Persistent registry updated: {len(registry_entries)} verified hashes stored.")
 
     # Persist hardened feed
     os.makedirs(os.path.dirname(FEED_PATH), exist_ok=True)
     with open(FEED_PATH, "w", encoding="utf-8") as f:
-        json.dump(combined_feed, f, indent=2, ensure_ascii=False)
+        json.dump(strictly_unique_feed, f, indent=2, ensure_ascii=False)
 
-    print(f"🎉 Pipeline completed successfully! {len(combined_feed)} verified leads in feed.")
-    for l in combined_feed:
+    print(f"🎉 Pipeline completed successfully! {len(strictly_unique_feed)} verified leads in feed.")
+    for l in strictly_unique_feed:
         print(f"  📍 [{l.get('company_name')}]: {l.get('phone')} | Place ID: {l.get('place_id')} | Maps: {l.get('google_maps_url')}")
 
 

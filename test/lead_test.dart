@@ -254,6 +254,39 @@ void main() {
       // Validated against Python hashlib.sha256("+966531000216_ChIJQ6AZBoXjLj4R2ZqOmz2WPMg")
       expect(hash, '9eb08f6fefbe74e87dfa9fb72bd849460099d9442acdc62c3ba3658b89466909');
     });
+
+    test('Lead equality and isSameBusiness correctly detect identical entities across phone, placeId, and name', () {
+      final now = DateTime.now();
+      final leadA = Lead(
+        id: 'lead_001',
+        companyName: 'Olaya Towers',
+        placeId: 'ChIJK2fMfiwDLz4RFWnQIXYtzlw',
+        country: 'Saudi Arabia (KSA)',
+        corridor: 'Al Olaya Commercial District',
+        sector: 'Management & Strategy Consulting',
+        marketingGap: '🔥 Missing Meta/GTM Pixel',
+        phone: '+966556550847',
+        email: 'info@olayatowers.com',
+        createdAt: now,
+      );
+
+      final leadB = Lead(
+        id: 'lead_diff_id',
+        companyName: 'Olaya Towers',
+        placeId: 'ChIJK2fMfiwDLz4RFWnQIXYtzlw',
+        country: 'Saudi Arabia (KSA)',
+        corridor: 'Al Olaya Commercial District',
+        sector: 'Management & Strategy Consulting',
+        marketingGap: '🔥 Missing Meta/GTM Pixel',
+        phone: '0556550847', // Local format
+        email: 'info@olayatowers.com',
+        createdAt: now,
+      );
+
+      expect(leadA == leadB, true);
+      expect(leadA.isSameBusiness(leadB), true);
+      expect({leadA, leadB}.length, 1); // Set deduplication works
+    });
   });
 }
 
