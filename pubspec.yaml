@@ -2,7 +2,7 @@ name: dm_client_hunting
 description: "Executive Obsidian CRM & Outbound Acquisition Engine for Digital Marketing Agencies across MENA."
 publish_to: 'none'
 
-version: 1.0.7+8
+version: 1.0.8+9
 
 environment:
   sdk: '>=3.5.0 <4.0.0'

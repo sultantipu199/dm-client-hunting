@@ -289,8 +289,118 @@ class _ModernLeadCardState extends ConsumerState<ModernLeadCard> {
                     ],
                   ),
                 ),
-                // Status pill
-                _buildStatusPill(widget.lead.status),
+                // Status pill and quick options menu
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildStatusPill(widget.lead.status),
+                    const SizedBox(width: 2),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert_rounded, size: 18, color: AppTheme.subduedSilver),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      color: AppTheme.cardSurfaceRaw,
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: AppTheme.borderNeonSubtle),
+                      ),
+                      onSelected: (val) async {
+                        HapticFeedback.lightImpact();
+                        if (val == 'delete') {
+                          await ref.read(leadsProvider.notifier).deleteLead(widget.lead.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Removed ${widget.lead.companyName} from Radar'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        } else if (val == 'reset') {
+                          await ref.read(leadsProvider.notifier).resetLeadStatus(widget.lead.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Reset status to "New" for ${widget.lead.companyName}'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        } else if (val == 'copy') {
+                          final details = '${widget.lead.companyName}\n'
+                              'Phone: ${widget.lead.phone}\n'
+                              'Email: ${widget.lead.email.isNotEmpty ? widget.lead.email : "N/A"}\n'
+                              'Address: ${widget.lead.address ?? widget.lead.corridor}\n'
+                              'Gap: ${widget.lead.marketingGap}';
+                          Clipboard.setData(ClipboardData(text: details));
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Lead details copied to clipboard!'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        } else if (val == 'blacklist') {
+                          await ref.read(leadsProvider.notifier).blacklistLead(widget.lead.id, widget.lead.phone);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Blacklisted ${widget.lead.phone}'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        if (widget.lead.status != 'new')
+                          const PopupMenuItem(
+                            value: 'reset',
+                            child: Row(
+                              children: [
+                                Icon(Icons.replay_rounded, size: 16, color: AppTheme.mintEmerald),
+                                SizedBox(width: 8),
+                                Text('Reset to New', style: TextStyle(fontSize: 12, color: AppTheme.cleanAlabaster)),
+                              ],
+                            ),
+                          ),
+                        const PopupMenuItem(
+                          value: 'copy',
+                          child: Row(
+                            children: [
+                              Icon(Icons.copy_rounded, size: 16, color: AppTheme.electricCyan),
+                              SizedBox(width: 8),
+                              Text('Copy Details', style: TextStyle(fontSize: 12, color: AppTheme.cleanAlabaster)),
+                            ],
+                          ),
+                        ),
+                        if (widget.lead.status != 'blacklisted')
+                          const PopupMenuItem(
+                            value: 'blacklist',
+                            child: Row(
+                              children: [
+                                Icon(Icons.shield_outlined, size: 16, color: AppTheme.sunsetCoral),
+                                SizedBox(width: 8),
+                                Text('Blacklist Contact', style: TextStyle(fontSize: 12, color: AppTheme.cleanAlabaster)),
+                              ],
+                            ),
+                          ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline_rounded, size: 16, color: AppTheme.sunsetCoral),
+                              SizedBox(width: 8),
+                              Text('Delete Lead', style: TextStyle(fontSize: 12, color: AppTheme.sunsetCoral)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
 

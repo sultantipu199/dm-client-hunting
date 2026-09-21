@@ -188,6 +188,49 @@ class LeadsNotifier extends Notifier<List<Lead>> {
       state = updatedList;
     }
   }
+
+  /// Completely wipes all leads from storage and state
+  Future<void> clearAllLeads() async {
+    await StorageService.clearAllLeads();
+    state = [];
+  }
+
+  /// Deletes an individual lead by ID
+  Future<void> deleteLead(String leadId) async {
+    await StorageService.deleteLead(leadId);
+    state = state.where((l) => l.id != leadId).toList();
+  }
+
+  /// Resets all contacted leads back to 'new' status
+  Future<void> resetContactedStatus() async {
+    await StorageService.resetContactedStatus();
+    state = _loadAllFromHive();
+  }
+
+  /// Restores pristine default verified inventory
+  Future<void> resetToDefaultLeads() async {
+    await StorageService.resetToDefaultLeads();
+    state = _loadAllFromHive();
+  }
+
+  /// Resets status of an individual lead back to 'new'
+  Future<void> resetLeadStatus(String leadId) async {
+    final lead = StorageService.leadsBox.get(leadId);
+    if (lead != null) {
+      final updated = lead.copyWith(
+        status: 'new',
+        clearContactedAt: true,
+      );
+      await StorageService.leadsBox.put(leadId, updated);
+      state = state.map((l) => l.id == leadId ? updated : l).toList();
+    }
+  }
+
+  /// Clears blacklist box and reloads
+  Future<void> clearBlacklist() async {
+    await StorageService.clearBlacklist();
+    state = _loadAllFromHive();
+  }
 }
 
 final leadsProvider = NotifierProvider<LeadsNotifier, List<Lead>>(() {

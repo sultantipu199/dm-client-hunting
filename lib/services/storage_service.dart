@@ -361,4 +361,56 @@ class StorageService {
   static String? getApiKey() {
     return settingsBox.get('gemini_api_key') as String?;
   }
+
+  /// Completely clears all leads from Hive and resets in-memory index
+  static Future<void> clearAllLeads() async {
+    await _leadsBox?.clear();
+    _knownPhones.clear();
+    _knownPlaceIds.clear();
+    _knownCompanyNames.clear();
+    _knownHashes.clear();
+    _knownLeadIds.clear();
+  }
+
+  /// Removes an individual lead by ID from Hive and in-memory index
+  static Future<void> deleteLead(String leadId) async {
+    final lead = _leadsBox?.get(leadId);
+    if (lead != null) {
+      final normP = normalizePhone(lead.phone);
+      _knownPhones.remove(normP);
+      if (lead.placeId != null) _knownPlaceIds.remove(lead.placeId!.trim());
+      _knownCompanyNames.remove(normalizeCompanyName(lead.companyName));
+      final placeId = lead.placeId ?? lead.id;
+      _knownHashes.remove(computeLeadHash(lead.phone, placeId));
+      _knownLeadIds.remove(lead.id);
+    }
+    await _leadsBox?.delete(leadId);
+  }
+
+  /// Resets all contacted leads back to 'new' status
+  static Future<void> resetContactedStatus() async {
+    if (_leadsBox == null) return;
+    for (final lead in _leadsBox!.values.toList()) {
+      if (lead.status == 'contacted') {
+        final resetLead = lead.copyWith(
+          status: 'new',
+          clearContactedAt: true,
+        );
+        await _leadsBox!.put(lead.id, resetLead);
+      }
+    }
+  }
+
+  /// Resets database and re-syncs pristine verified inventory from assets/data/leads_feed.json
+  static Future<void> resetToDefaultLeads() async {
+    await clearAllLeads();
+    await syncLeadRegistry();
+    _rebuildKnownIndices();
+    await syncLeadsFromFeed();
+  }
+
+  /// Clears the blacklist database
+  static Future<void> clearBlacklist() async {
+    await _blacklistBox?.clear();
+  }
 }

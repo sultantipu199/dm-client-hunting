@@ -287,6 +287,36 @@ void main() {
       expect(leadA.isSameBusiness(leadB), true);
       expect({leadA, leadB}.length, 1); // Set deduplication works
     });
+
+    test('Lead.copyWith with clearContactedAt cleanly resets contacted timestamp', () {
+      final now = DateTime.now();
+      final contactedLead = Lead(
+        id: 'lead_contacted',
+        companyName: 'Al Olaya Ventures',
+        country: 'Saudi Arabia (KSA)',
+        corridor: 'Al Olaya Commercial District',
+        sector: 'Tech Startups',
+        marketingGap: '🔥 Missing Meta/GTM Pixel',
+        phone: '+966556550999',
+        email: 'info@olayaventures.sa',
+        status: 'contacted',
+        contactedAt: now,
+        createdAt: now,
+      );
+
+      expect(contactedLead.status, 'contacted');
+      expect(contactedLead.contactedAt, isNotNull);
+
+      final resetLead = contactedLead.copyWith(
+        status: 'new',
+        clearContactedAt: true,
+      );
+
+      expect(resetLead.status, 'new');
+      expect(resetLead.contactedAt, isNull);
+      expect(resetLead.companyName, contactedLead.companyName);
+      expect(resetLead.phone, contactedLead.phone);
+    });
   });
 }
 

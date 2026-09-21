@@ -54,9 +54,10 @@ def upload_to_tag(tag, apk_path, token, repo, title, body_text):
     upload_url = release_data.get("upload_url", "").split("{")[0]
     asset_name = "app-release.apk"
     for asset in release_data.get("assets", []):
-        if asset.get("name") in (asset_name, f"DM_Client_Hunter_{tag}.apk", "DM_Client_Hunter_Release_v1.0.1.apk", "DM_Client_Hunter_Release_v1.0.2.apk", "DM_Client_Hunter_Release_v1.0.3.apk", "DM_Client_Hunter_Release_v1.0.4.apk", "DM_Client_Hunter_Release_v1.0.5.apk", "DM_Client_Hunter_Release_v1.0.6.apk"):
+        name = asset.get("name", "")
+        if name.endswith(".apk") or name in (asset_name, f"DM_Client_Hunter_{tag}.apk", f"DM_Client_Hunter_Release_{tag}.apk"):
             del_url = asset.get("url")
-            print(f"Deleting existing asset {asset.get('name')} from {tag}...")
+            print(f"Deleting existing asset {name} from {tag}...")
             requests.delete(del_url, headers=headers)
 
     print(f"Uploading {apk_path} ({os.path.getsize(apk_path)} bytes) to GitHub Release {tag}...")
@@ -107,19 +108,18 @@ def main():
         sys.exit(1)
 
     body = (
-        "### DM Client Hunter MENA v1.0.7 (Universal Release - Dual v1+v2 Signed)\n\n"
-        "- **Dedicated Release Keystore**: Signed with dedicated release certificate (`CN=DM Hunter, OU=Mobile, O=Antigravity, L=Riyadh, C=SA`, RSA 2048-bit, valid through 2054) resolving package installer rejection.\n"
-        "- **Dual v1 (JAR) & v2 (APK Signature Scheme v2)**: Fully compliant with all Android PackageInstallers (Android 5.0 to Android 15/16, Samsung One UI, Xiaomi HyperOS).\n"
-        "- **Universal Compatibility**: Configured `minSdkVersion 21`, `targetSdk 34`, and `compileSdk 36`.\n"
-        "- **⚠️ NOTE FOR UPGRADING**: If you previously installed a debug-signed version (`v1.0.5` or earlier) on your device, **please uninstall that existing app before installing this release**, as Android strictly prohibits installing a release-signed APK over an existing debug-signed installation.\n"
-        "- **Bulletproof Multi-Barrier Deduplication**: Eliminates duplicate leads across ALL operational layers (Phone Number, Google Place ID, Company Name, SHA-256 Composite Hash, and Lead ID).\n"
-        "- **Authentic MENA Commercial Inventory**: 78+ verified real-world Google Places commercial profiles across Riyadh (KAFD, Al Olaya, Al Narjis, Roshn Front, King Salman Rd, Digital City, Granada, Al Malqa), Dubai (Business Bay, DIFC), Doha (West Bay), and Kuwait City (Sharq).\n"
-        "- **Interactive Google Maps Pins**: Dedicated **'Open in Google Maps'** button on every lead card directly navigates to the verified commercial pin.\n"
-        "- **Zero Data Over Fake Data**: 100% genuine real places only; zero synthetic mock records.\n\n"
+        "### DM Client Hunter MENA v1.0.8 (Executive UI/UX & Full Lead Management Release)\n\n"
+        "- **🧹 Lead Clear & Control Center**: Dedicated **Clear All Leads** action with safety confirmation dialog directly from the AppBar and Settings.\n"
+        "- **⚙️ Executive Settings & Control Hub**: Complete management hub allowing one-tap **Restore Default Verified Inventory (78+)**, **Reset Contacted Status**, **Clear Blacklist**, and Gemini API key config.\n"
+        "- **🎯 Per-Lead Action Menu**: Every lead card now features an options menu to delete individual leads, reset status back to New, copy full corporate details, or blacklist.\n"
+        "- **✨ Neat & Clean UI/UX**: Streamlined Obsidian aesthetics, balanced responsive AppBar without mobile horizontal overflows, high-contrast badges, and informative empty states.\n"
+        "- **🔑 Dual v1 (JAR) + v2 (APK Signature Scheme v2)**: Signed with dedicated release certificate (`CN=DM Hunter, OU=Mobile, O=Antigravity, L=Riyadh, C=SA`, valid through 2054) for universal package installer compatibility.\n"
+        "- **🏢 100% Genuine MENA Inventory**: 78+ verified real-world Google Places commercial profiles across Riyadh (KAFD, Al Olaya, Al Narjis, Roshn Front, King Salman Rd, Digital City, Granada, Al Malqa), Dubai (Business Bay, DIFC), Doha (West Bay), and Kuwait City (Sharq).\n"
+        "- **📍 Direct Google Maps Action**: Interactive pin button directly opens verified Google Maps commercial profiles.\n\n"
         "**Direct Download**: Download `app-release.apk` below."
     )
 
-    tags = ["v1.0.7", "v1.0.6", "v1.0.5"]
+    tags = ["v1.0.8", "v1.0.7"]
     for tag in tags:
         upload_to_tag(
             tag=tag,
